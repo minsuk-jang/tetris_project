@@ -1,0 +1,29 @@
+package toy_project;
+
+import java.util.*;
+import java.util.List;
+
+import javax.swing.*;
+import java.awt.*;
+import java.math.*;
+
+public class tetris{
+	private static tetris_board board;
+	
+	public static void main(String [] args) {
+		board=  new tetris_board();
+		
+	}
+	
+	private static void startGame() {
+		Random rand = new Random();
+		int num = rand.nextInt(5);
+		
+		tetris_block block = new tetris_block();
+		List<Point> list = block.make_block(num);
+		
+		
+	}
+	
+	
+}

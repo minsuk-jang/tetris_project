@@ -1,0 +1,23 @@
+package toy_project;
+
+import java.util.*;
+import javax.swing.*;
+import java.awt.*;
+import java.math.*;
+
+public class tetris{
+	public static void main(String [] args) {
+		tetris_board board=  new tetris_board();
+		
+	}
+	
+	private static void startGame() {
+		Random rand = new Random();
+		int num = rand.nextInt(5);
+		
+		tetris_block block = new tetris_block();
+		block.make_block(num);
+	}
+	
+	
+}
