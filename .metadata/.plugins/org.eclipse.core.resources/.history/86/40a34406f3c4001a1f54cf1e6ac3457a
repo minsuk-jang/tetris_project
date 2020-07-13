@@ -1,0 +1,41 @@
+package toy_project;
+
+import java.util.*;
+
+public class PlayThread extends Thread {
+	private static boolean block_finish = false;
+	public static int[][] b;
+	private int[][] board = new int[20][10];
+	private int[] ud = { 1, 0, 0 };
+	private int[] rl = { 0, -1, 1 };
+	public static int dir = 0;
+	private long time = 1000;
+	public static int x =-1 , y = 4;
+
+	@Override
+	public void run() {
+		tetris_board tetris_board = new tetris_board();
+		tetris_block block = new tetris_block();
+		tetris_board.set_board(board);
+
+		while (true) {
+			try {
+				if (!block_finish) {
+					Random rand = new Random();
+					int n = rand.nextInt(6);
+
+					b = block.make_block(n);
+					tetris_board.set_block(b);
+					tetris_board.set_coordinate(x,y);
+					block_finish = true;
+				}
+
+				Thread.sleep(1000);
+				System.out.println(dir);
+				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}

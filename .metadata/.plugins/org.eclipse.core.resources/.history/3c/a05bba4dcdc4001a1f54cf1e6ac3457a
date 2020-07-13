@@ -1,0 +1,37 @@
+package toy_project;
+
+import java.util.*;
+
+public class PlayThread extends Thread {
+	private static boolean block_finish = false;
+
+	@Override
+	public void run() {
+		tetris_board board = new tetris_board();
+		tetris_block block = new tetris_block();
+
+		try {
+			List<Point> b = null;
+			while (true) {
+				if (!block_finish) {
+					Random rand = new Random();
+					int n = rand.nextInt(5);
+
+					b = block.make_block(n);
+					board.set_block(b);
+					
+				}
+				
+				Thread.sleep(1000);
+				for(Point p : b) {
+					System.out.print(p.x +  " " + p.y + " ");
+				}
+				board.repaint();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+}

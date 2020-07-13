@@ -1,0 +1,65 @@
+package toy_project;
+
+import java.util.*;
+
+public class PlayThread extends Thread {
+	private static boolean block_finish = false;
+	public static int[][] b;
+	private int[][] board = new int[20][10];
+	private int[] ud = { 1, 0, 0 };
+	private int[] rl = { 0, -1, 1 };
+	public static int dir = 0;
+	private long time = 1000;
+	public static int x = -1, y = 4;
+
+	@Override
+	public void run() {
+		tetris_board tetris_board = new tetris_board();
+		tetris_block block = new tetris_block();
+		tetris_board.set_board(board);
+
+		while (true) {
+			try {
+				if (!block_finish) {
+					Random rand = new Random();
+					int n = rand.nextInt(6);
+
+					b = block.make_block(n);
+					tetris_board.set_block(b);
+					block_finish = true;
+				}
+
+				Thread.sleep(300);
+
+				if (move()) {
+					System.out.println("test");
+					tetris_board.repaint();
+				}
+
+				x++;
+				tetris_board.repaint();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private boolean move() {
+		int nx = x + ud[dir];
+		int ny = y + rl[dir];
+
+		for (int i = nx; i < 4 + nx; i++) {
+			for (int j = ny; j < 4 + ny; j++) {
+				// 배열 범위 밖이면서 테트리스 블록이 존재할 경우
+				if (i < 0 || i >= 20 || j < 0 || j >= 10) {
+					if (b[i - nx][j - ny] == 1)
+						return false;
+				}
+			}
+		}
+
+		x = nx;
+		y = ny;
+		return true;
+	}
+}

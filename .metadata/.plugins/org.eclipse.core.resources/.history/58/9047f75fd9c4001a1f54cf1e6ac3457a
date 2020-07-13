@@ -1,0 +1,100 @@
+package toy_project;
+
+import java.util.*;
+
+public class PlayThread extends Thread {
+	private static boolean block_finish = false;
+	public static List<Point> b = null;
+	private int[][] board = new int[20][10];
+	private int[] ud = { 1, 0, 0 };
+	private int[] rl = { 0, -1, 1 };
+	public static int dir = 0;
+	private long time = 1000;
+
+	@Override
+	public void run() {
+		tetris_board tetris_board = new tetris_board();
+		tetris_block block = new tetris_block();
+		tetris_board.set_board(board);
+
+		while (true) {
+			try {
+				if (!block_finish) {
+					Random rand = new Random();
+					int n = rand.nextInt(5);
+
+					b = block.make_block(n);
+					tetris_board.set_block(b);
+
+					block_finish = true;
+				}
+
+				Thread.sleep(200);
+				if (dir < 3 && can_move()) {
+					tetris_board.repaint();
+				} else if (dir == 3 && rotate()) {
+					// 위쪽 방향키를 눌렀을 경우, 블록 로테이션
+
+				} else {
+					for (Point p : b) {
+						board[p.y][p.x] = 1;
+					}
+					block_finish = false;
+				}
+				dir = 0;
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private boolean rotate() {
+		for (Point p : b) {
+			int nx = p.y;
+			int ny = 3 - p.x;
+
+			if (nx < 0 || ny >= 10 || ny < 0 || nx >= 20) {
+				return false;
+			}
+		}
+
+		for (Point p : b) {
+			int nx = p.y;
+			int ny = 3 - p.x;
+
+			p.x = nx;
+			p.y = ny;
+			
+		}
+		
+		return true;
+	}
+
+	private boolean can_move() {
+		for (Point p : b) {
+			int nx = p.y + ud[dir];
+			int ny = p.x + rl[dir];
+
+			// 테트리스 보드판 밖으로 나간 경우
+			if (nx < 0 || ny >= 10 || ny < 0 || nx >= 20) {
+				if (nx < 20) {
+					return true;
+				}
+				return false;
+			}
+
+			// 밑에 블록이 존재할 경우
+			if (board[nx][ny] == 1)
+				return false;
+		}
+
+		for (Point p : b) {
+			p.x += rl[dir];
+			p.y += ud[dir];
+		}
+		if (dir == 0)
+			time = 300;
+
+		return true;
+	}
+}
