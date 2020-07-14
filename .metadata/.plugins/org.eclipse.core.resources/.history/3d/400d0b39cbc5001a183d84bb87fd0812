@@ -1,0 +1,17 @@
+package toy_project;
+import java.util.*;
+
+public class play_game {
+	public static void main(String[] args) {
+		PlayThread pt =new PlayThread();
+		Timer timer = new Timer();
+		TimerTask task = new TimerTask() {
+			@Override 
+			public void run() {
+				time += 1;
+			}
+		}
+		
+		pt.start();
+	}
+}
