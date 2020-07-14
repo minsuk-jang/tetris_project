@@ -73,6 +73,8 @@ public class tetris_board extends JFrame {
 				g.drawLine(0, i * 30, 300, i * 30);
 			}
 
+			
+			g.drawString("지운 줄 수 : " + PlayThread.removed_line, 20, 630);
 		}
 	}
 

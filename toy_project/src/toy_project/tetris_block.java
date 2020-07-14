@@ -13,17 +13,16 @@ public class tetris_block {
 
 		} else if (j == 1) {
 			int[] x_idx = { 4, 5, 5, 6 };
-			int[] y_idx = { 1, 0, 1, 1 };
+			int[] y_idx = { 1, 1, 0, 1 };
 			make(list, x_idx, y_idx);
 
 		} else if (j == 2) {
 
-			int[] x_idx = { 4, 5, 6, 6 };
+			int[] x_idx = { 4, 6, 5, 6 };
 			int[] y_idx = { 1, 1, 1, 0 };
 			make(list, x_idx, y_idx);
 
 		} else if (j == 3) {
-
 			int[] x_idx = { 4, 4, 5, 6 };
 			int[] y_idx = { 0, 1, 1, 1 };
 			make(list, x_idx, y_idx);
@@ -38,7 +37,7 @@ public class tetris_block {
 			int[] y_idx = { 1, 1, 0, 0 };
 			make(list, x_idx, y_idx);
 		} else {
-			int[] x_idx = { 4, 4, 5, 5 };
+			int[] x_idx = { 4, 5, 4, 5 };
 			int[] y_idx = { 0, 0, 1, 1 };
 
 			make(list, x_idx, y_idx);

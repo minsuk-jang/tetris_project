@@ -18,7 +18,9 @@ public class KeyListener extends KeyAdapter {
 			PlayThread.dir = 2;
 		else if (arg0.getKeyCode() == KeyEvent.VK_UP)
 			PlayThread.dir = 3;
-
+		else if(arg0.getKeyCode() == KeyEvent.VK_SPACE) {
+			PlayThread.dir = 32;
+		}
 	}
 
 	@Override
