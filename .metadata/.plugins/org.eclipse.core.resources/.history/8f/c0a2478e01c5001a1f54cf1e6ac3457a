@@ -28,7 +28,7 @@ public class PlayThread extends Thread {
 					block_finish = true;
 				}
 
-				Thread.sleep(300);
+				Thread.sleep(1000);
 				if (dir < 3 && move()) {
 					tetris_board.repaint();
 				} else if (dir == 3) {
@@ -59,29 +59,41 @@ public class PlayThread extends Thread {
 		System.out.println();
 	}
 
-	//블록 회전
 	private boolean rotate() {
-		int pivot_x = b.get(1).x, pivot_y = b.get(1).y;
+		int x = Integer.MAX_VALUE, y = Integer.MAX_VALUE;
 
-		List<Point> tmp = new ArrayList<>(b);
-
-		for (Point p : tmp) {
-			p.x = p.x - pivot_x;
-			p.y = p.y - pivot_y;
+		for (Point p : b) {
+			x = Math.min(x, p.x);
+			y = Math.min(y, p.y);
 		}
 
-		for (Point p : tmp) {
-			int nx = p.x * 0 + -1*p.y;
-			int ny = p.x * 1 + 0 * p.y;
-			
-			p.x = nx + pivot_x;
-			p.y = ny + pivot_y;
-			
+		x += 4;
+		y += 4;
+		
+		y = Math.min(x, y);
 
-			if(p.x < 0 || p.x >= 20 || p.y <0 || p.y >= 10)
+		for (Point p : b) {
+			int nx = p.y;
+			int ny = y - p.x;
+
+			// 테트리스 블록을 돌려서 배열 밖으로 나가는 경우
+			if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
 				return false;
+
+			// 테트리스 판에 블록이 존재할 경우
+			if (board[nx][ny] == 1)
+				return false;
+
 		}
-		b = tmp;
+
+		for (Point p : b) {
+			int nx = p.y;
+			int ny = y - p.x;
+
+			p.x = nx;
+			p.y = ny;
+		}
+
 		return true;
 	}
 

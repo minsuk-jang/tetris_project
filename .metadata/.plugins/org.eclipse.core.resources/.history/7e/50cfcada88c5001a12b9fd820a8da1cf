@@ -53,7 +53,7 @@ public class tetris_board extends JFrame {
 			g.setColor(Color.green);
 			
 			for(Point p : block) {
-				g.fillRect(p.x*30, p.y*30, 30, 30);
+				g.fillRect(p.y*30, p.x*30, 30, 30);
 			}
 			
 			for (int i = 0; i < 20; i++) {

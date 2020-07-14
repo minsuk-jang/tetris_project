@@ -51,7 +51,6 @@ public class tetris_board extends JFrame {
 
 		public void draw_board(Graphics g) {
 			g.setColor(Color.green);
-			
 			for(Point p : block) {
 				g.fillRect(p.x*30, p.y*30, 30, 30);
 			}

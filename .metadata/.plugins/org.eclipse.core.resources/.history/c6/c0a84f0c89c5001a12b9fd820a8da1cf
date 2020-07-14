@@ -28,7 +28,7 @@ public class PlayThread extends Thread {
 					block_finish = true;
 				}
 
-				Thread.sleep(300);
+				Thread.sleep(1000);
 				if (dir < 3 && move()) {
 					tetris_board.repaint();
 				} else if (dir == 3) {
@@ -59,9 +59,8 @@ public class PlayThread extends Thread {
 		System.out.println();
 	}
 
-	//블록 회전
 	private boolean rotate() {
-		int pivot_x = b.get(1).x, pivot_y = b.get(1).y;
+		int pivot_x = b.get(0).x, pivot_y = b.get(0).y;
 
 		List<Point> tmp = new ArrayList<>(b);
 
@@ -71,16 +70,14 @@ public class PlayThread extends Thread {
 		}
 
 		for (Point p : tmp) {
-			int nx = p.x * 0 + -1*p.y;
-			int ny = p.x * 1 + 0 * p.y;
-			
-			p.x = nx + pivot_x;
-			p.y = ny + pivot_y;
-			
+			p.x = (0 * p.x + -1 * p.y);
+			p.y = (1 * p.x + 0 * p.y);
 
-			if(p.x < 0 || p.x >= 20 || p.y <0 || p.y >= 10)
+			if (p.x < 0 || p.x >= 20 || p.y < 0 || p.y >= 10)
 				return false;
+
 		}
+
 		b = tmp;
 		return true;
 	}
