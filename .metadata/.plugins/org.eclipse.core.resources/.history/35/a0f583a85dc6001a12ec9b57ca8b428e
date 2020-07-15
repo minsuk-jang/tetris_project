@@ -43,7 +43,6 @@ public class PlayThread extends Thread {
 					if (n != 6)
 						rotate();
 					else {
-						dir = -1;
 						move();
 					}
 

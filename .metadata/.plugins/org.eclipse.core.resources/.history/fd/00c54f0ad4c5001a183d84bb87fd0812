@@ -4,8 +4,6 @@ import java.util.*;
 public class play_game {
 	public static void main(String[] args) {
 		PlayThread pt =new PlayThread();
-		
-		//블록을 1초씩 떨어뜨리기 하기 위한 장치
 		Timer timer = new Timer();
 		TimerTask task = new TimerTask() {
 			@Override 
