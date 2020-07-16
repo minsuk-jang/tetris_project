@@ -1,0 +1,35 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class Generic {
+	private static Weight[] w;
+
+	public Generic(int count) {
+		w = new Weight[count];
+		
+		Random rn = new Random();
+		for(int i =0 ; i < w.length ; i++) {
+			int r =0 ;
+			double b = (rn.nextDouble() * 2) - 1;
+			double c = (rn.nextDouble() * 2) - 1;
+			double cc  =(rn.nextDouble() * 2) - 1;
+			w[i] = new Weight(r,b,c,cc);
+		}
+	}
+
+	private class Weight {
+		int row; // 지운 줄 수
+		double blank_weight;
+		double complete_line_weight;
+		double connected_weight;
+
+		public Weight(int r, double b, double c, double cc) {
+			this.row = r;
+			this.blank_weight = b;
+			this.complete_line_weight = c;
+			this.connected_weight = cc;
+		}
+
+	}
+}

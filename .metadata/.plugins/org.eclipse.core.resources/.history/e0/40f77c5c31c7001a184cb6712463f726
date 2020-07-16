@@ -1,0 +1,34 @@
+package toy_project;
+
+import java.util.*;
+
+public class play_game {
+	static PlayThread pt;
+
+	public static void main(String[] args) {
+		pt = new PlayThread();
+
+		// 블록을 1초씩 떨어뜨리기 하기 위한 장치
+		Timer timer = new Timer();
+		TimerTask task = new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					if (!PlayThread.game_finish)
+						PlayThread.dir = 0;
+					else {
+						pt.wait();
+						System.out.println("timer Finish");
+						timer.cancel();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+
+		timer.schedule(task, 0, 1000);
+
+		pt.start();
+	}
+}

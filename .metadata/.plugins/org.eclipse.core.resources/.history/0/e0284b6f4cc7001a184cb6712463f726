@@ -1,0 +1,26 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class play_game {
+	public static int removed_line = 0;
+	private static int [][] board;
+	public static void main(String[] args) {
+		Random rn = new Random();
+		
+		int n = rn.nextInt(7);
+		tetris_block block = new tetris_block();
+		tetris_board tetris_board = new tetris_board();
+		
+		board=  new int[20][10];
+		tetris_board.set_board(board);
+		
+		List<Point> b = block.make_block(n);
+		tetris_board.set_block(b);
+		
+		while(true) {
+			
+		}
+		
+	}
+}

@@ -2,6 +2,9 @@ package toy_project;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.*;
 
 public class KeyListener extends KeyAdapter {
 
@@ -18,8 +21,11 @@ public class KeyListener extends KeyAdapter {
 			PlayThread.dir = 2;
 		else if (arg0.getKeyCode() == KeyEvent.VK_UP)
 			PlayThread.dir = 3;
-		else if(arg0.getKeyCode() == KeyEvent.VK_SPACE) {
+		else if(arg0.getKeyCode() == KeyEvent.VK_SPACE) 
 			PlayThread.dir = 32;
+		
+		if(arg0.getKeyCode() == KeyEvent.VK_S) {
+			
 		}
 	}
 

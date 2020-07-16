@@ -4,9 +4,9 @@ import java.util.*;
 
 public class PlayThread extends Thread {
 	private static boolean block_finish = false;
-
+	public static boolean game_finish = false;
 	private List<Point> b;
-	private int[][] board = new int[20][10];
+	private int[][] board;
 	private int[] ud = { 1, 0, 0 };
 	private int[] rl = { 0, -1, 1 };
 	public static int dir = 0;
@@ -14,11 +14,12 @@ public class PlayThread extends Thread {
 	public static int removed_line = 0;
 	private int n;
 	private tetris_board tetris_board;
-
+	
 	@Override
 	public void run() {
 		tetris_board = new tetris_board();
 		tetris_block block = new tetris_block();
+		board = new int[20][10];
 		tetris_board.set_board(board);
 
 		while (true) {
@@ -29,7 +30,23 @@ public class PlayThread extends Thread {
 					b = block.make_block(n);
 
 					tetris_board.set_block(b);
+
+					for (Point p : b) {
+						if (board[p.y][p.x] == 1) {
+							game_finish = true;
+							break;
+						}
+					}
+
 					block_finish = true;
+				}
+
+				if (game_finish) {
+					System.out.println("Game Finish");
+					
+					this.init_game();
+					game_finish = false;
+					continue;
 				}
 
 				Thread.sleep(1);
@@ -57,20 +74,17 @@ public class PlayThread extends Thread {
 				}
 				tetris_board.repaint();
 				dir = -1;
+
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	private void print() {
-		for (int i = 0; i < 20; i++) {
-			for (int j = 0; j < 10; j++) {
-				System.out.print(board[i][j] + " ");
-			}
-			System.out.println();
-		}
-		System.out.println();
+	public void init_game() {
+		board = new int[20][10];
+		tetris_board.set_board(board);
+		removed_line = 0;
 	}
 
 	/*
