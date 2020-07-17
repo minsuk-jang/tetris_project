@@ -1,0 +1,281 @@
+package genetic_tetris;
+
+import java.util.*;
+
+import genetic_tetris.Generic.Weight;
+
+public class play_game {
+	public static int removed_line = 0;
+	private static int[][] board;
+	private static int[] ud = { -1, 0, 1, 0 };
+	private static int[] rl = { 0, 1, 0, -1 };
+	public static int generation = 1;
+	public static int current_gene = 1;
+
+	public static void main(String[] args) {
+		Random rn = new Random();
+
+		tetris_block block = new tetris_block();
+		tetris_board tetris_board = new tetris_board();
+
+		Generic g = new Generic(100); // 유전자 생성
+		try {
+			while (true) {
+				Weight[] w = g.get_weight();
+
+				for (int i = 0; i < w.length; i++) {
+					Weight current_w = w[i];
+					current_gene = current_w.number;
+					board = new int[20][10];
+					tetris_board.set_board(board);
+					removed_line = 0;
+					
+					while (true) {
+						int n = (rn.nextInt(7) + 1);
+						List<Point> b = block.make_block(n);
+
+						if (isFinish(b))
+							break;
+
+						List<Point> tmp = move(b, n, current_w);
+						put_there(tmp, n);
+						
+						Thread.sleep(1000);
+						tetris_board.repaint();
+					}
+				}
+
+				// 크로스 오버
+				g.cross_over();
+				generation++;
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	// 게임이 끝나는지 확인
+	private static boolean isFinish(List<Point> b) {
+		for (Point p : b) {
+			if (board[p.x][p.y] != 0)
+				return true;
+		}
+
+		return false;
+	}
+
+	// 블록 두기
+	private static List<Point> move(List<Point> b, int n, Weight w) {
+		double result = Double.MIN_NORMAL;
+		List<Point> tmp_save = new ArrayList<>();
+		for (int i = 0; i < 4; i++) { // 회전
+			for (int j = -4; j < 6; j++) {
+				for (int k = 19; k >= -1; k--) { //높이
+					if (can_put(k, j, b)) { // 블록을 둘 수 있을 경우
+						double tmp = put_there(k, j, b, n, w);
+						if (result < tmp) {
+							result = tmp;
+							if (!tmp_save.isEmpty()) {
+								tmp_save.clear();
+							}
+
+							for (Point p : b) {
+								tmp_save.add(new Point(p.x + k, p.y + j));
+							}
+						}
+						break;
+					}
+				}
+			}
+			rotate(b);
+		}
+
+		w.rank += result;
+		return tmp_save;
+	}
+
+	private static void rotate(List<Point> b) {
+		int pivot_x = b.get(1).x, pivot_y = b.get(1).y;
+
+		for (Point p : b) {
+			p.x = p.x - pivot_x;
+			p.y = p.y - pivot_y;
+		}
+
+		int x_min = 0, x_max = 9, y_max = 19, y_min = 0;
+		for (Point p : b) {
+			int nx = p.x * 0 + -1 * p.y;
+			int ny = p.x * 1 + 0 * p.y;
+
+			p.x = nx + pivot_x;
+			p.y = ny + pivot_y;
+
+			if (p.x < 0)
+				x_min = Math.min(p.x, x_min);
+
+			if (p.x >= 10)
+				x_max = Math.max(p.x, x_max);
+
+			if (p.y < 0)
+				y_min = Math.min(p.y, y_min);
+
+			if (p.y >= 20)
+				y_max = Math.max(p.y, y_max);
+		}
+
+		x_min = Math.abs(x_min);
+		y_min = Math.abs(y_min);
+
+		for (Point p : b) {
+			p.x += x_min;
+			p.y += y_min;
+		}
+
+		x_max -= 9;
+		y_max -= 19;
+
+		for (Point p : b) {
+			p.x -= x_max;
+			p.y -= y_max;
+		}
+	}
+
+	private static void print() {
+		for (int i = 0; i < 20; i++) {
+			for (int j = 0; j < 10; j++) {
+				System.out.print(board[i][j] + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+
+	// 블록에 둔다.
+	private static void put_there(List<Point> tmp, int n) {
+		for (Point p : tmp) {
+			board[p.x][p.y] = n;
+		}
+		remove_line();
+	}
+	
+	//줄을 지우는 메소드
+	private  static void remove_line() {
+		Set<Integer> idx = new LinkedHashSet<>();
+		for (int i = 0; i < 20; i++) {
+			int count = 0;
+			for (int j = 0; j < 10; j++) {
+				if (board[i][j] == 1)
+					count++;
+			}
+
+			if (count == 10) {
+				Arrays.fill(board[i], 0);
+				idx.add(i);
+			}
+		}
+
+		removed_line += idx.size();
+		for (int i : idx) {
+			for (int j = i - 1; j >= 0; j--) {
+				for (int k = 0; k < 10; k++) {
+					if (board[j][k] == 1) {
+						board[j][k] = 0;
+						board[j + 1][k] = 1;
+					}
+				}
+			}
+		}
+
+	}
+
+	// 가중치를 이용하여 블럭을 둘 위치를 계산
+	private static double put_there(int x, int y, List<Point> b, int n, Weight w) {
+		List<Point> tmp = new ArrayList<>();
+		int blank_count = 0, connected = 0, remove_line, height_weight;
+
+		for (Point p : b) {
+			tmp.add(new Point(p.x + x, p.y + y));
+		}
+
+		for (int i = 0; i < tmp.size(); i++) {
+
+			for (int j = 0; j < 4; j++) {
+				int nx = tmp.get(i).x + ud[i];
+				int ny = tmp.get(i).y + rl[i];
+
+				// 배열 범위 밖인 경우
+				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
+					continue;
+
+				if (board[nx][ny] == 1)
+					connected++;
+				else
+					blank_count++;
+			}
+		}
+
+		remove_line = remove_line(tmp, n);
+		height_weight = cal_height(tmp);
+
+		double result = blank_count * w.blank_weight + connected * w.connected_weight
+				+ remove_line * w.complete_line_weight + height_weight * w.height_weight;
+
+		return result;
+
+	}
+
+	private static int cal_height(List<Point> tmp) {
+		List<Integer> h = new ArrayList<>();
+		
+		for(Point p : tmp) {
+			h.add(p.x);
+		}
+		
+		Collections.sort(h);
+		
+		return board.length - h.get(0);
+	}
+	
+	private static int remove_line(List<Point> tmp, int n) {
+		for (Point p : tmp) {
+			board[p.x][p.y] = n;
+		}
+
+		int ret = 0;
+		for (int i = 0; i < 20; i++) {
+			int count = 0;
+			for (int j = 0; j < 10; j++) {
+				if (board[i][j] != 0)
+					count++;
+			}
+
+			if (count == 10)
+				ret++;
+		}
+
+		for (Point p : tmp) {
+			board[p.x][p.y] = 0;
+		}
+
+		return ret;
+	}
+
+	// 블록을 해당 위치에서 둘 수 있는지 없는지 판단.
+	private static boolean can_put(int x, int y, List<Point> b) {
+		for (Point p : b) {
+			int nx = p.x + x;
+			int ny = p.y + y;
+
+			// 현재 좌표에 배열 범위 밖인 경우
+			if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
+				return false;
+
+			// 블록을 둘 자리에 이미 블록이 존재한 경우
+			if (board[nx][ny] != 0)
+				return false;
+		}
+
+		return true;
+	}
+}

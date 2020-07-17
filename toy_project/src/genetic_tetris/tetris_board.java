@@ -64,8 +64,15 @@ public class tetris_board extends JFrame {
 				g.drawLine(0, i * 30, 300, i * 30);
 			}
 
-			g.setFont(new Font("Arial", Font.ITALIC, 30));
-			g.drawString("lines: " + play_game.removed_line, 330, 330);
+			g.setFont(new Font("Arial", Font.ITALIC, 20));
+
+			g.drawString("MOM gene : " + play_game.MOM, 320, 210);
+			g.drawString("Maximum line : " + play_game.MAXIMUM_line, 320, 240);
+			
+			g.drawString("Generation : " + play_game.generation, 320, 270);
+			g.drawString("Gene : " + play_game.current_gene,320, 300);
+
+			g.drawString("lines: " + play_game.removed_line, 320, 330);
 		}
 	}
 

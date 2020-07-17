@@ -1,0 +1,12 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class test {
+	public static void main(String[] args) {
+		if(-1.4 > -11)
+			System.out.println("t");
+		else
+			System.out.println("F");
+	}
+}

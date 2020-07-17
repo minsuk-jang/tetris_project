@@ -4,11 +4,12 @@ import java.util.*;
 
 public class test {
 	public static void main(String[] args) {
-		Random rn = new Random();
+		double upper = 0.25;
+		double lower = -0.25;
+		
 		for(int i =0 ; i < 10 ; i++) {
-			System.out.println(rn.nextDouble()*2 - 1);
-			
-			
+			double tmp = Math.random() * (upper - lower ) + lower;
+			System.out.print(tmp  + " ");
 		}
 	}
 }
