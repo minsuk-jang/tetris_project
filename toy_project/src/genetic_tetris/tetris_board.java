@@ -19,7 +19,7 @@ public class tetris_board extends JFrame {
 	public tetris_board() {
 		setTitle("Tetris");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(500, 700);
+		setSize(600, 700);
 		setResizable(false);
 		setContentPane(panel);
 		setLocation(500, 200);
@@ -64,15 +64,12 @@ public class tetris_board extends JFrame {
 				g.drawLine(0, i * 30, 300, i * 30);
 			}
 
-			g.setFont(new Font("Arial", Font.ITALIC, 20));
-
-			g.drawString("MOM gene : " + play_game.MOM, 320, 210);
-			g.drawString("Maximum line : " + play_game.MAXIMUM_line, 320, 240);
+			g.setFont(new Font("Arial", Font.BOLD, 20));
+			g.drawString("Best score : " + play_game.best_score, 320, 180);
 			
-			g.drawString("Generation : " + play_game.generation, 320, 270);
-			g.drawString("Gene : " + play_game.current_gene,320, 300);
-
-			g.drawString("lines: " + play_game.removed_line, 320, 330);
+			g.drawString("Current score : " + play_game.current_score, 320, 210);
+			g.drawString("Generation : " + play_game.generation + " (" + play_game.current_gene + ")", 320, 270);
+			g.drawString("lines: " + play_game.removed_line, 320, 300);
 		}
 	}
 

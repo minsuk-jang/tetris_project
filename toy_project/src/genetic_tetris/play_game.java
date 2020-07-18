@@ -11,16 +11,17 @@ public class play_game {
 	private static int[] rl = { 0, 1, 0, -1 };
 	public static int generation = 1;
 	public static int current_gene = 1;
-	public static int MOM = 1;
-	public static int MAXIMUM_line = 0;
+	public static long best_score = 0;
+	public static long current_score = 0;
+	private static tetris_board tetris_board;
 
 	public static void main(String[] args) {
 		Random rn = new Random();
 
 		tetris_block block = new tetris_block();
-		tetris_board tetris_board = new tetris_board();
+		tetris_board = new tetris_board();
 
-		Generic g = new Generic(10); // 유전자 생성
+		Generic g = new Generic(20); // 유전자 생성
 		try {
 			while (true) {
 				Weight[] w = g.get_weight();
@@ -30,6 +31,7 @@ public class play_game {
 					current_gene = current_w.number;
 					board = new int[20][10];
 					tetris_board.set_board(board);
+					current_score = 0;
 					removed_line = 0;
 
 					while (true) {
@@ -43,24 +45,19 @@ public class play_game {
 						decide_put_there(tmp, n);
 						remove_line(tmp);
 						tetris_board.repaint();
+						current_score = current_w.score;
 
 						Thread.sleep(100);
 					}
 
-					if (removed_line > MAXIMUM_line) {
-						MAXIMUM_line = removed_line;
-						MOM = current_gene;
+					if (current_w.score > best_score) {
+						best_score = current_w.score;
 					}
-					
-					current_w.delete_line += removed_line;
-
 				}
 
 				// 크로스 오버
 				g.cross_over();
 				generation++;
-				MAXIMUM_line =0 ;
-				MOM = 0;
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -113,11 +110,15 @@ public class play_game {
 
 	// 블록 두기
 	private static List<Point> move(List<Point> b, int n, Weight w) {
-		double result = Integer.MIN_VALUE;
+		int result = Integer.MIN_VALUE;
 		List<Point> tmp_save = new ArrayList<>();
 
-		for (int i = 0; i < 3; i++) { // 회전
-			outter: for (int j = 0; j >= -4; j--) {
+		int size = 3;
+		if (n == 1 || n == 5 || n == 6 || n == 7)
+			size = 2;
+
+		for (int i = 0; i < size; i++) { // 회전
+			outter: for (int j = 0; j >= -5; j--) { // 왼쪽으로 이동
 				List<Point> temp = new ArrayList<>();
 				for (Point p : b) {
 					int nx = p.x;
@@ -131,24 +132,44 @@ public class play_game {
 					temp.add(new Point(nx, ny));
 				}
 
-				go_down(temp);
+				inner: for (int k = 0; k >= -5; k--) {
+					go_down(temp); // 하강
+					
+					for (Point p : temp) {
+						int nx = p.x;
+						int ny = p.y + k;
 
-				double tmp = put_there(temp, n, w);
+						if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
+							break inner;
 
-				if (result < tmp) {
-					result = tmp;
-
-					if (!tmp_save.isEmpty())
-						tmp_save.clear();
+						if (board[nx][ny] != 0)
+							break inner;
+					}
 
 					for (Point p : temp) {
-						tmp_save.add(new Point(p.x, p.y));
+						p.y += k;
+					}
+
+					int tmp = put_there(temp, n, w);
+
+					if (result < tmp) {
+						result = tmp;
+
+						if (!tmp_save.isEmpty())
+							tmp_save.clear();
+
+						for (Point p : temp) {
+							tmp_save.add(new Point(p.x, p.y));
+						}
+					}
+
+					for (Point p : temp) {
+						p.y -= k;
 					}
 				}
-
 			}
 
-			outter: for (int j = 1; j <= 6; j++) {
+			outter: for (int j = 0; j <= 6; j++) { // 오른쪽으로 이동
 				List<Point> temp = new ArrayList<>();
 				for (Point p : b) {
 					int nx = p.x;
@@ -162,68 +183,139 @@ public class play_game {
 					temp.add(new Point(nx, ny));
 				}
 
-				go_down(temp);
+				inner: for (int k = 0; k <= 6; k++) {
+					go_down(temp); // 하강
+					for (Point p : temp) {
+						int nx = p.x;
+						int ny = p.y + k;
 
-				double tmp = put_there(temp, n, w);
+						if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
+							break inner;
 
-				if (result < tmp) {
-					result = tmp;
-
-					if (!tmp_save.isEmpty())
-						tmp_save.clear();
+						if (board[nx][ny] != 0)
+							break inner;
+					}
 
 					for (Point p : temp) {
-						tmp_save.add(new Point(p.x, p.y));
+						p.y += k;
+					}
+
+					int tmp = put_there(temp, n, w);
+
+					if (result < tmp) {
+						result = tmp;
+
+						if (!tmp_save.isEmpty())
+							tmp_save.clear();
+
+						for (Point p : temp) {
+							tmp_save.add(new Point(p.x, p.y));
+						}
+					}
+
+					for (Point p : temp) {
+						p.y -= k;
 					}
 				}
-
 			}
 
 			rotate(b);
 		}
 
+		w.score += result;
 		return tmp_save;
 	}
 
 	// 현재 위치에 블럭을 둔다.
-	private static double put_there(List<Point> tmp, int n, Weight w) {
-		double result = 0.0;
-		int blank_count = 0, block_count = 0, predict_remove_line = 0, height = 0;
+	private static int put_there(List<Point> tmp, int n, Weight w) {
+		int result = 0;
+		boolean[][] visited = new boolean[20][10];
+		int blank_count = 0, down_count = 0, block_count = 0, predict_remove_line = 0, height = 0;
 
 		// 둔 지점의 블럭의 빈칸의 개수와 블럭의 개수를 센다
 		for (Point p : tmp) {
-			for (int i = 0; i < 3; i++) {
+			visited[p.x][p.y] = true;
+		}
+
+		for (Point p : tmp) {
+			for (int i = 0; i < 4; i++) {
 				int nx = p.x + ud[i];
 				int ny = p.y + rl[i];
 
 				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
 					continue;
 
-				if (board[nx][ny] == 0)
+				// 블럭을 둔 후, 밑에 있는 빈칸 개수
+				if (board[nx][ny] == 0 && !visited[nx][ny])
 					blank_count++;
-				else
-					block_count++;
 			}
 		}
 
-		predict_remove_line = predict_remove_line(tmp, n);
-		height = cal_height(tmp);
+		// 블록 아래 빈칸
+		for (Point p : tmp) {
+			int nx = p.x + 1;
+			int ny = p.y;
+			if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
+				continue;
 
-		result = (blank_count * w.blank_weight + block_count * w.connected_weight
-				+ predict_remove_line * w.complete_line_weight + height * w.height_weight) / 20;
+			if (board[nx][ny] == 0 && !visited[nx][ny]) {
+				while (true) {
+					if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
+						break;
 
+					if (board[nx][ny] == 0)
+						down_count++;
+
+					nx += 1;
+				}
+			}
+		}
+
+		// 칸의 개수를 세기
+		for (Point p : tmp) {
+			for (int i = 0; i < 4; i++) {
+				int nx = p.x + ud[i];
+				int ny = p.y + rl[i];
+
+				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10)
+					continue;
+
+				if (board[nx][ny] != 0 && !visited[nx][ny]) {
+					visited[nx][ny] = true;
+					block_count++;
+				}
+
+			}
+		}
+
+		predict_remove_line = predict_remove_line(tmp, n) * 10;
+		height = cal_height(tmp, n);
+
+		result = (-(blank_count * w.blank_weight) + (block_count * w.round_block_weight)
+				+ (predict_remove_line * w.complete_line_weight) + (height * w.height_weight)
+				- (down_count * w.down_blank_weight)) / 100;
 		return result;
 	}
 
 	// 현재 둔 블록의 높이를 계산
-	private static int cal_height(List<Point> tmp) {
-		int h = Integer.MAX_VALUE;
-
+	private static int cal_height(List<Point> tmp, int n) {
 		for (Point p : tmp) {
-			h = Math.min(h, p.x);
+			board[p.x][p.y] = n;
 		}
 
-		return 20 - h;
+		int height = Integer.MAX_VALUE;
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 20; j++) {
+				if (board[j][i] != 0)
+					height = Math.min(height, j);
+			}
+		}
+
+		for (Point p : tmp) {
+			board[p.x][p.y] = 0;
+		}
+
+		return height;
 	}
 
 	// 해당 위치에 블럭을 두어 지울 수 있는 줄 수를 예측
@@ -232,11 +324,13 @@ public class play_game {
 			board[p.x][p.y] = n;
 		}
 
+		tetris_board.repaint();
+
 		int ret = 0;
-		for (int i = 0; i < 20; i++) {
+		for (Point p : tmp) {
 			int cont = 0;
 			for (int j = 0; j < 10; j++) {
-				if (board[i][j] != 0)
+				if (board[p.x][j] != 0)
 					cont++;
 			}
 
@@ -317,16 +411,6 @@ public class play_game {
 			p.x -= x_max;
 			p.y -= y_max;
 		}
-	}
-
-	private static void print() {
-		for (int i = 0; i < 20; i++) {
-			for (int j = 0; j < 10; j++) {
-				System.out.print(board[i][j] + " ");
-			}
-			System.out.println();
-		}
-		System.out.println();
 	}
 
 }

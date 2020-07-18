@@ -10,16 +10,16 @@ public class Generic {
 		this.size = count;
 		w = new Weight[this.size];
 
-		double upper = 1.0, lower = -1.0;
 		Random rn = new Random();
 		for (int i = 0; i < w.length; i++) {
-			int n = i + 1;
-			int r = 0;
-			double b = Math.random() * (upper - lower) + lower;
-			double c = Math.random() * (upper - lower) + lower;
-			double cc = Math.random() * (upper - lower) + lower;
-			double hw = Math.random() * (upper - lower) + lower;
-			w[i] = new Weight(n, r, b, c, cc, hw);
+			int blank_weight = rn.nextInt(1000) + 1;
+			int round_block_weight = rn.nextInt(1001) + 1;
+			int complete_line_weight = rn.nextInt(3001) + 1000;
+			int height_weight = rn.nextInt(100) + 1;
+			int down_blank_weight = rn.nextInt(2000) + 1000;
+
+			w[i] = new Weight(i + 1, 0, blank_weight, complete_line_weight, round_block_weight, height_weight,
+					down_blank_weight);
 		}
 	}
 
@@ -30,68 +30,72 @@ public class Generic {
 
 	public void cross_over() {
 		double result = Integer.MIN_VALUE;
-		int idx = 0;
+		int idx = -1;
 
 		// rank가 가장 큰 유전자 선택
 		for (int i = 0; i < size; i++) {
-			if (result < w[i].delete_line) {
-				result = w[i].delete_line;
+			if (result < w[i].score) {
+				result = w[i].score;
 				idx = i;
 			}
 		}
 		Weight fitness = w[idx];
-
-		System.out.println("select gene number : #" + idx);
-		System.out.println("Delete line : " + fitness.delete_line);
-		System.out.println("blank : " + fitness.blank_weight + " connected : " + fitness.connected_weight);
-		System.out.println("line : " + fitness.complete_line_weight + " height weight : " + fitness.height_weight);
-
-		double mutation = 0.0;
-		System.out.println("Mutation : " + mutation);
 		w = new Weight[this.size];
 
-		w[0] = fitness;
-		Random rn = new Random();
-		for (int i = 1; i < size; i++) {
-			if (rn.nextBoolean())
-				mutation = (Math.abs(fitness.blank_weight) + Math.abs(fitness.complete_line_weight)
-						+ Math.abs(fitness.connected_weight) + Math.abs(fitness.height_weight)) / 10;
+		int f_bw = fitness.blank_weight;
+		int f_cl = fitness.complete_line_weight;
+		int f_rb = fitness.round_block_weight;
+		int f_hw = fitness.height_weight;
+		int f_dbw = fitness.down_blank_weight;
 
-			double b = make_percentage(fitness.blank_weight, mutation);
-			double c = make_percentage(fitness.complete_line_weight, mutation);
-			double cc = make_percentage(fitness.connected_weight, mutation);
-			double hw = make_percentage(fitness.height_weight, mutation);
-			w[i] = new Weight(i + 1, 0, b, c, cc, hw);
+		System.out.println("Select gene number : " + idx + " Score : " + fitness.score);
+		System.out.println("blank : " + fitness.blank_weight);
+		System.out.println("Complete line : " + fitness.complete_line_weight);
+		System.out.println("round block : " + fitness.round_block_weight);
+		System.out.println("height : " + fitness.height_weight);
+		System.out.println("down blank : " + fitness.down_blank_weight);
+
+		w[0] = fitness;
+		w[0].number = 0;
+		w[0].score = 0;
+
+		int mutation = (Math.abs(f_bw) + Math.abs(f_cl) + Math.abs(f_rb) + Math.abs(f_hw) + Math.abs(f_dbw)) / 20;
+
+		System.out.println("Mutation : " + mutation);
+		Random rn = new Random();
+
+		for (int i = 1; i < size; i++) {
+
+			int b = (f_bw + rn.nextInt(mutation * 2));
+			int cl = (f_cl + rn.nextInt(mutation * 2));
+			int rb = (f_rb + rn.nextInt(mutation * 2));
+			int hw = (f_hw + rn.nextInt(mutation * 2));
+			int dbw = (f_dbw + rn.nextInt(mutation * 2));
+			
+			
+			w[i] = new Weight(i + 1, 0, b, cl, rb, hw,dbw);
 		}
 
 		System.out.println("complete generate\n");
 	}
 
-	private double make_percentage(double percent, double mutation) {
-		double upper = 0.0, lower = 0.0;
-		upper = Math.abs(Math.abs(percent) - mutation);
-		lower = -upper;
-
-		double result = Math.random() * (upper - lower) + lower;
-		return result;
-
-	}
-
 	public class Weight {
 		int number = 0;
-		double delete_line;
-		double blank_weight;
-		double complete_line_weight;
-		double connected_weight;
-		double height_weight;
+		long score;
+		int blank_weight;
+		int complete_line_weight;
+		int round_block_weight;
+		int height_weight;
+		int down_blank_weight;
 
-		public Weight(int n, double r, double b, double c, double cc, double hw) {
+		public Weight(int n, long s, int b, int cl, int rb, int hw, int dbw) {
 			this.number = n;
-			this.delete_line = r;
+			this.score = s;
 			this.blank_weight = b;
-			this.complete_line_weight = c;
-			this.connected_weight = cc;
+			this.complete_line_weight = cl;
+			this.round_block_weight = rb;
 			this.height_weight = hw;
+			this.down_blank_weight = dbw;
 		}
 
 	}
