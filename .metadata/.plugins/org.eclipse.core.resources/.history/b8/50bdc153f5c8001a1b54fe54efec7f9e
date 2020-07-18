@@ -1,0 +1,5 @@
+package genetic_tetris;
+
+public class calculate_gene {
+
+}

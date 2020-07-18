@@ -1,0 +1,77 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class calculate_gene {
+	private int[][] board;
+	private int[] ud = { -1, 0, 1, 0 };
+	private int[] rl = { 0, 1, 0, -1 };
+
+	public void calculate(List<Point> tmp, int n, int[][] board, Weight w) {
+		this.board = board;
+
+		// 현재 블럭으로 채우기
+		for (Point p : tmp) {
+			board[p.x][p.y] = n;
+		}
+
+	}
+
+	private int round_block(List<Point> tmp) {
+		boolean[][] visited = new boolean[20][10];
+
+		for (Point p : tmp) {
+			visited[p.x][p.y] = true;
+		}
+
+		int ret = 0;
+		for (Point p : tmp) {
+			for (int i = 0; i < 4; i++) {
+				int nx = p.x + ud[i];
+				int ny = p.y + rl[i];
+
+				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10 || visited[nx][ny] || board[nx][ny] == 0)
+					continue;
+
+				visited[nx][ny] = true;
+				ret++;
+			}
+		}
+
+		return ret;
+	}
+
+	private int complete_line() {
+		int ret = 0;
+		for (int i = 0; i < 20; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (board[i][j] != 0)
+					ret++;
+			}
+		}
+
+		return ret;
+	}
+
+	private int blank_count(List<Point> tmp) {
+		boolean[][] visited = new boolean[20][10];
+		for (Point p : tmp) {
+			visited[p.x][p.y] = true;
+		}
+
+		int ret = 0;
+		for (Point p : tmp) {
+			for (int i = 0; i < 4; i++) {
+				int nx = p.x + ud[i];
+				int ny = p.y + rl[i];
+
+				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10 || visited[nx][ny] || board[nx][ny] != 0)
+					continue;
+				visited[nx][ny] = true;
+				ret++;
+			}
+		}
+
+		return ret;
+	}
+}

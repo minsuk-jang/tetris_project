@@ -68,8 +68,10 @@ public class tetris_board extends JFrame {
 			g.drawString("Best score : " + play_game.best_score, 320, 180);
 			
 			g.drawString("Current score : " + play_game.current_score, 320, 210);
-			g.drawString("Generation : " + play_game.generation + " (" + play_game.current_gene + ")", 320, 270);
-			g.drawString("lines: " + play_game.removed_line, 320, 300);
+			g.drawString("Best line : " + play_game.best_line, 320, 240);
+			g.drawString("lines: " + play_game.removed_line, 320, 270);
+			
+			g.drawString("Generation : " + play_game.generation + " (" + play_game.current_gene + ")", 320, 330);
 		}
 	}
 
