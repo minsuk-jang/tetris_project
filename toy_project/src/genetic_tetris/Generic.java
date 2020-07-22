@@ -10,16 +10,17 @@ public class Generic {
 		this.size = count;
 		w = new Weight[this.size];
 
+		Random rn = new Random();
 		for (int i = 0; i < w.length; i++) {
-			double bw = Math.random() * 6;
-			double clw = Math.random() * 10 + 3;
-			double rbw = Math.random() * 6;
-			double hw = Math.random() * 6;
-			double dbw = Math.random() * 6;
-			double sbw = Math.random() * 6;
-			double blw = Math.random() * 6;
-			double hole = Math.random() * 6;
-			double ubw = Math.random() * 6;
+			double bw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double clw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double rbw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double hw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double dbw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double sbw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double blw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double hole = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double ubw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
 
 			w[i] = new Weight(i + 1, 0, 0, bw, clw, rbw, hw, dbw, sbw, blw, hole, ubw);
 		}
@@ -66,25 +67,28 @@ public class Generic {
 		System.out.println("up block : " + fitness.up_block_weight);
 
 		w[0] = fitness;
+
 		w[0].number = 0;
 		w[0].score = 0;
 
-		double mutation = (Math.abs(f_bw) + Math.abs(f_clw) + Math.abs(f_rbw) + Math.abs(f_hw) + Math.abs(f_dbw)
-				+ Math.abs(f_sbw) + Math.abs(f_blw) + Math.abs(f_hl) + Math.abs(f_ubw)) / 20;
+		double mutation = Math
+				.round(((Math.abs(f_bw) + Math.abs(f_clw) + Math.abs(f_rbw) + Math.abs(f_hw) + Math.abs(f_dbw)
+						+ Math.abs(f_sbw) + Math.abs(f_blw) + Math.abs(f_hl) + Math.abs(f_ubw)) / 100) * 10000.0)
+				/ 10000.0;
 
 		System.out.println("Mutation : " + mutation);
 
 		for (int i = 1; i < size; i++) {
 
-			double bw = f_bw + (Math.random() * (mutation + mutation) - mutation);
-			double clw = f_clw + (Math.random() * (mutation + mutation) - mutation);
-			double rbw = f_rbw + (Math.random() * (mutation + mutation) - mutation);
-			double hw = f_hw + (Math.random() * (mutation + mutation) - mutation);
-			double dbw = f_dbw + (Math.random() * (mutation + mutation) - mutation);
-			double sbw = f_sbw + (Math.random() * (mutation + mutation) - mutation);
-			double blw = f_blw + (Math.random() * (mutation + mutation) - mutation);
-			double hl = f_hl + (Math.random() * (mutation + mutation) - mutation);
-			double ubw = f_ubw + (Math.random() * (mutation + mutation) - mutation);
+			double bw = f_bw + Math.random() * (2 * mutation) - mutation;
+			double clw = f_clw + Math.random() * (2 * mutation) - mutation;
+			double rbw = f_rbw + Math.random() * (2 * mutation) - mutation;
+			double hw = f_hw + Math.random() * (2 * mutation) - mutation;
+			double dbw = f_dbw + Math.random() * (2 * mutation) - mutation;
+			double sbw = f_sbw + Math.random() * (2 * mutation) - mutation;
+			double blw = f_blw + Math.random() * (2 * mutation) - mutation;
+			double hl = f_hl + Math.random() * (2 * mutation) - mutation;
+			double ubw = f_ubw + Math.random() * (2 * mutation) - mutation;
 
 			w[i] = new Weight(i + 1, 0, 0, bw, clw, rbw, hw, dbw, sbw, blw, hl, ubw);
 		}

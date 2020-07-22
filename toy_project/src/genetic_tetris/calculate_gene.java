@@ -40,7 +40,7 @@ public class calculate_gene {
 		 */
 		double result = cal_result(bc, cl, rb, h, d_blank, sb, bb, hc, ub, w);
 		
-		return result / 2;
+		return (Math.round((result/8)*1000.0)/1000.0);
 	}
 
 	private double cal_result(int bc, int cl, int rb, int h, int d_blank, int sb, int bb, int hc, int ub, Weight w) {

@@ -1,0 +1,98 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class Generic {
+	private Weight[] w;
+	private int size;
+
+	public Generic(int count) {
+		this.size = count;
+		w = new Weight[this.size];
+
+		Random rn = new Random();
+		for (int i = 0; i < w.length; i++) {
+			double bw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double clw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double rbw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double hw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double dbw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double sbw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double blw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double hole = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+			double ubw = ((double) (rn.nextInt(100000) + 10000) / 10000.0);
+
+			w[i] = new Weight(i + 1, 0, 0, bw, clw, rbw, hw, dbw, sbw, blw, hole, ubw);
+		}
+	}
+
+	public Weight[] get_weight() {
+		return w;
+
+	}
+
+	public void cross_over() {
+		double result = Integer.MIN_VALUE;
+		int idx = -1;
+
+		// rank가 가장 큰 유전자 선택
+		for (int i = 0; i < size; i++) {
+			if (result < w[i].score) {
+				result = w[i].score;
+				idx = i;
+			}
+		}
+		Weight fitness = w[idx];
+		w = new Weight[this.size];
+
+		double f_bw = fitness.blank_weight;
+		double f_clw = fitness.complete_line_weight;
+		double f_rbw = fitness.round_block_weight;
+		double f_hw = fitness.height_weight;
+		double f_dbw = fitness.down_blank_weight;
+		double f_sbw = fitness.side_block_weight;
+		double f_blw = fitness.baseline_weight;
+		double f_hl = fitness.hole_weight;
+		double f_ubw = fitness.up_block_weight;
+
+		System.out.println("Select gene number : " + idx + " Score : " + fitness.score + " line : " + fitness.line);
+		System.out.println("blank : " + fitness.blank_weight);
+		System.out.println("Complete line : " + fitness.complete_line_weight);
+		System.out.println("round block : " + fitness.round_block_weight);
+		System.out.println("height : " + fitness.height_weight);
+		System.out.println("down blank : " + fitness.down_blank_weight);
+		System.out.println("side block : " + fitness.side_block_weight);
+		System.out.println("baseline : " + fitness.baseline_weight);
+		System.out.println("hole : " + fitness.hole_weight);
+		System.out.println("up block : " + fitness.up_block_weight);
+
+		w[0] = fitness;
+		w[0].number = 0;
+		w[0].score = 0;
+
+		double mutation = Math
+				.round(((Math.abs(f_bw) + Math.abs(f_clw) + Math.abs(f_rbw) + Math.abs(f_hw) + Math.abs(f_dbw)
+						+ Math.abs(f_sbw) + Math.abs(f_blw) + Math.abs(f_hl) + Math.abs(f_ubw)) / 250) * 10000.0)
+				/ 10000.0;
+
+		System.out.println("Mutation : " + mutation);
+
+		for (int i = 1; i < size; i++) {
+
+			double bw = f_bw + Math.random() * (2 * mutation) - mutation;
+			double clw = f_clw + Math.random() * (2 * mutation) - mutation;
+			double rbw = f_rbw + Math.random() * (2 * mutation) - mutation;
+			double hw = f_hw + Math.random() * (2 * mutation) - mutation;
+			double dbw = f_dbw + Math.random() * (2 * mutation) - mutation;
+			double sbw = f_sbw + Math.random() * (2 * mutation) - mutation;
+			double blw = f_blw + Math.random() * (2 * mutation) - mutation;
+			double hl = f_hl + Math.random() * (2 * mutation) - mutation;
+			double ubw = f_ubw + Math.random() * (2 * mutation) - mutation;
+
+			w[i] = new Weight(i + 1, 0, 0, bw, clw, rbw, hw, dbw, sbw, blw, hl, ubw);
+		}
+
+		System.out.println("complete generate\n");
+	}
+
+}

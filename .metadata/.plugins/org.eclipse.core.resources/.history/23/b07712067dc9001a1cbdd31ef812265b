@@ -1,0 +1,33 @@
+package genetic_tetris;
+
+public class Weight {
+	int number = 0;
+	int line = 0;
+	long score;
+	double blank_weight; // 빈칸
+	double complete_line_weight; // 완성된 줄
+	double round_block_weight; // 주위의 블록
+	double height_weight; // 높이
+	double down_blank_weight; // 아래 블럭
+	double side_block_weight; // 옆 블럭
+	double baseline_weight; // 바닥면
+	double hole_weight; // 구멍
+	double up_block_weight; // 빈 구멍 위에 있는 블록
+
+	public Weight(int n, int l, long s, double bw, double clw, double rbw, double hw, double dbw, double sbw,
+			double blw, double hl, double ubw) {
+		this.number = n;
+		this.line = l;
+		this.score = s;
+		this.blank_weight = bw;
+		this.complete_line_weight = clw;
+		this.round_block_weight = rbw;
+		this.height_weight = hw;
+		this.down_blank_weight = dbw;
+		this.side_block_weight = sbw;
+		this.baseline_weight = blw;
+		this.hole_weight = hl;
+		this.up_block_weight = ubw;
+	}
+
+}

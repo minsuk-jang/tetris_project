@@ -19,7 +19,7 @@ public class tetris_board extends JFrame {
 	public tetris_board() {
 		setTitle("Tetris");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(600, 700);
+		setSize(600, 645);
 		setResizable(false);
 		setContentPane(panel);
 		setLocation(500, 200);
@@ -38,6 +38,7 @@ public class tetris_board extends JFrame {
 		public MyPanel() {
 			this.setFocusable(true);
 			this.requestFocus();
+			this.setBackground(Color.black);
 		}
 
 		public void paintComponent(Graphics g) {
@@ -46,16 +47,16 @@ public class tetris_board extends JFrame {
 		}
 
 		public void draw_board(Graphics g) {
-			for (int i = 0; i < 20; i++) {
-				for (int j = 0; j < 10; j++) {
+			for (int i = 0; i < board.length; i++) {
+				for (int j = 0; j < board[i].length; j++) {
 					if (board[i][j] != 0) {
 						g.setColor(color[board[i][j] - 1]);
-						g.fillRect(j * 30, i * 30, 30, 30);
+						g.fill3DRect(j * 30, i * 30, 30, 30,true);
 					}
 				}
 			}
 
-			g.setColor(Color.black);
+			g.setColor(Color.white);
 			for (int i = 1; i <= 10; i++) {
 				g.drawLine(i * 30, 0, i * 30, 600);
 			}

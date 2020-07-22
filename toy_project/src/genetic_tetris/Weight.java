@@ -19,15 +19,15 @@ public class Weight {
 		this.number = n;
 		this.line = l;
 		this.score = s;
-		this.blank_weight = bw;
-		this.complete_line_weight = clw;
-		this.round_block_weight = rbw;
-		this.height_weight = hw;
-		this.down_blank_weight = dbw;
-		this.side_block_weight = sbw;
-		this.baseline_weight = blw;
-		this.hole_weight = hl;
-		this.up_block_weight = ubw;
+		this.blank_weight = (Math.round(bw * 10000.0) / 10000.0);
+		this.complete_line_weight =(Math.round(clw * 10000.0) / 10000.0);
+		this.round_block_weight = (Math.round(rbw* 10000.0)/10000.0);
+		this.height_weight = (Math.round(hw*10000.0)/10000.0);
+		this.down_blank_weight = (Math.round(dbw*10000.0)/10000.0);
+		this.side_block_weight = (Math.round(sbw*10000.0)/10000.0);
+		this.baseline_weight = (Math.round(blw*10000.0)/10000.0);
+		this.hole_weight = (Math.round(hl*10000.0)/10000.0);
+		this.up_block_weight = (Math.round(ubw*10000.0)/10000.0);
 	}
 
 }
