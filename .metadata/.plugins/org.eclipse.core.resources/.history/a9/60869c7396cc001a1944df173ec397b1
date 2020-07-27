@@ -1,0 +1,22 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class test {
+	public static void main(String[] args) {
+		int [] t = new int[10];
+		
+	}
+
+	private static class Point {
+		int[] ud;
+
+		public Point() {
+			ud = new int[10];
+
+			for (int i = 0; i < ud.length; i++) {
+				ud[i] = i + 1;
+			}
+		}
+	}
+}

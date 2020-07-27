@@ -22,7 +22,7 @@ public class play_game {
 		tetris_board = new tetris_board();
 		cal_gene = new calculate_gene();
 
-		Generic g = new Generic(100); // 유전자 생성
+		Generic g = new Generic(30); // 유전자 생성
 		try {
 			while (true) {
 				Weight[] w = g.get_weight();
@@ -48,7 +48,7 @@ public class play_game {
 						tetris_board.repaint();
 						current_score = current_w.score;
 
-						Thread.sleep(1);
+						Thread.sleep(30);
 					}
 
 					if (current_w.score > best_score) {

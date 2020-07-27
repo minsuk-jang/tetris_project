@@ -1,0 +1,23 @@
+package genetic_tetris;
+
+public class Weight {
+	int number = 0;
+	int line = 0;
+	long score;
+	double[] variation;
+	double [] mod = {9.57, 8.624, 7.751, 9.538, 8.093, 5.55, 7.438, 4.649, 3.351}; 
+	
+	public Weight(int n, int l, long s, double[] w) {
+		this.number = n;
+		this.line = l;
+		this.score = s;
+		this.variation = new double[9];
+
+		for (int i = 0; i < 9; i++) {
+			this.variation[i] = Math.abs(Math.round(w[i] *1000.0)/1000.0) % mod[i];
+		}
+
+		
+	}
+
+}

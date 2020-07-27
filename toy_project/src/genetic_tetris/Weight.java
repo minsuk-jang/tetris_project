@@ -4,30 +4,20 @@ public class Weight {
 	int number = 0;
 	int line = 0;
 	long score;
-	double blank_weight; // ºóÄ­
-	double complete_line_weight; // ¿Ï¼ºµÈ ÁÙ
-	double round_block_weight; // ÁÖÀ§ÀÇ ºí·Ï
-	double height_weight; // ³ôÀÌ
-	double down_blank_weight; // ¾Æ·¡ ºí·°
-	double side_block_weight; // ¿· ºí·°
-	double baseline_weight; // ¹Ù´Ú¸é
-	double hole_weight; // ±¸¸Û
-	double up_block_weight; // ºó ±¸¸Û À§¿¡ ÀÖ´Â ºí·Ï
-
-	public Weight(int n, int l, long s, double bw, double clw, double rbw, double hw, double dbw, double sbw,
-			double blw, double hl, double ubw) {
+	double[] variation;
+	double [] mod = {8}; 
+	
+	public Weight(int n, int l, long s, double[] w) {
 		this.number = n;
 		this.line = l;
 		this.score = s;
-		this.blank_weight = (Math.round(bw * 10000.0) / 10000.0);
-		this.complete_line_weight =(Math.round(clw * 10000.0) / 10000.0);
-		this.round_block_weight = (Math.round(rbw* 10000.0)/10000.0);
-		this.height_weight = (Math.round(hw*10000.0)/10000.0);
-		this.down_blank_weight = (Math.round(dbw*10000.0)/10000.0);
-		this.side_block_weight = (Math.round(sbw*10000.0)/10000.0);
-		this.baseline_weight = (Math.round(blw*10000.0)/10000.0);
-		this.hole_weight = (Math.round(hl*10000.0)/10000.0);
-		this.up_block_weight = (Math.round(ubw*10000.0)/10000.0);
+		this.variation = new double[9];
+
+		for (int i = 0; i < 9; i++) {
+			this.variation[i] = Math.round(w[i] *1000.0)/1000.0;
+		}
+
+		
 	}
 
 }

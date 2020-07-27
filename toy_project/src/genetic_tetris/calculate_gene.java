@@ -28,31 +28,22 @@ public class calculate_gene {
 		int hc = hole_count(tmp, visited);
 		int ub = up_block(visited);
 
-		/*
-		 * System.out.println("blank count : " + bc);
-		 * System.out.println("complete line : " + cl);
-		 * System.out.println("round block : " + rb); System.out.println("height : " +
-		 * h); System.out.println("down blank : " + d_blank);
-		 * System.out.println("side block : " + sb); System.out.println("below block : "
-		 * + bb); System.out.println("hole count : " + hc);
-		 * System.out.println("up block : " + ub);
-		 * System.out.println("result : " + result + "\n");
-		 */
 		double result = cal_result(bc, cl, rb, h, d_blank, sb, bb, hc, ub, w);
-		
-		return (Math.round((result/8)*1000.0)/1000.0);
+
+		return (Math.round((result / 50) * 1000.0) / 1000.0);
 	}
 
 	private double cal_result(int bc, int cl, int rb, int h, int d_blank, int sb, int bb, int hc, int ub, Weight w) {
-		double result = -bc * w.blank_weight;
-		result += cl * w.complete_line_weight;
-		result += rb * w.round_block_weight;
-		result += h * w.height_weight;
-		result -= d_blank * w.down_blank_weight;
-		result += sb * w.side_block_weight;
-		result += bb * w.baseline_weight;
-		result -= hc * w.hole_weight;
-		result -= ub * w.up_block_weight;
+		double result = 0.0;
+
+		int[] c = { cl, rb, h, sb, bb, bc, d_blank, hc, ub };
+
+		for (int i = 0; i <= 4; i++) {
+			result += (c[i] * w.variation[i]);
+		}
+		
+		for(int i = 4 ; i < c.length;  i++)
+			result -= (c[i] * (w.variation[i]));
 
 		return result;
 	}
@@ -65,7 +56,7 @@ public class calculate_gene {
 				if (!visited[j][i]) {
 					int h = j;
 
-					for (int k = h-1; k >= 0; k--) {
+					for (int k = h - 1; k >= 0; k--) {
 						if (board[k][i] != 0)
 							ret++;
 						else

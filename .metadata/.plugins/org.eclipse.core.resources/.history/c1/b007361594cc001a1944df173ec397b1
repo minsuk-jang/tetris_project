@@ -1,0 +1,149 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class Generic {
+	private Weight[] w;
+	private int size;
+
+	public Generic(int count) {
+		this.size = count;
+		w = new Weight[this.size];
+
+		double[] temp = new double[9];
+		for (int i = 0; i < w.length; i++) {
+			for (int j = 0; j < temp.length; j++) {
+				temp[j] = Math.random() * 2*5 - 5;
+			}
+
+			w[i] = new Weight(i + 1, 0, 0, temp);
+		}
+	}
+
+	public Weight[] get_weight() {
+		return w;
+
+	}
+
+	private void selection(List<Weight> list) {
+		for (int i = 0; i < this.size; i++) {
+			list.add(w[i]);
+		}
+
+		list.sort(new Comparator<Weight>() {
+
+			@Override
+			public int compare(Weight o1, Weight o2) {
+				// TODO Auto-generated method stub
+				if (o1.score > o2.score)
+					return -1;
+				else if (o1.score == o2.score) {
+					if (o1.line > o2.line)
+						return -1;
+					else
+						return 1;
+				} else
+					return 1;
+			}
+
+		});
+
+	}
+
+	public void cross_over() {
+		List<Weight> list = new ArrayList<>();
+		selection(list);
+
+		Weight[] children = new Weight[this.size];
+
+		// 상위 50% 부모 개체에서 자식 개체에게 전달
+		boolean[] check = new boolean[this.size / 2];
+		for (int i = 0; i < this.size / 2; i += 2) {
+			Weight p1 = list.get(get_idx(check));
+			Weight p2 = list.get(get_idx(check));
+
+			cross_over(p1, p2);
+		}
+
+		// 전달
+		Random rn = new Random();
+		for (int i = 0; i < this.size; i++) {
+			int idx = rn.nextInt(this.size / 2);
+			children[i] = new Weight(i + 1, 0, 0, list.get(idx).variation);
+		}
+
+		// 가장 좋은 개체로 돌연 변이
+		double mutation = make_mutation(list.get(0));
+		// 나머지 50개는 돌연 변이 발생
+		for (int i = 0; i < this.size / 2; i++) {
+			int idx = rn.nextInt(100);
+
+			adjust_mutation(children[idx], mutation);
+		}
+
+		print(list.get(0));
+		System.out.println("Complete generation");
+	}
+	
+	private void print(Weight w) {
+		for(int i =0 ; i < w.variation.length ; i++) {
+			System.out.print(w.variation[i] + " ");
+		}
+		System.out.println();
+	}
+
+	private int get_idx(boolean[] check) {
+		Random rn = new Random();
+		while (true) {
+			int idx = rn.nextInt(this.size / 2);
+
+			if (!check[idx]) {
+				check[idx] = true;
+				return idx;
+			}
+		}
+	}
+
+	private void adjust_mutation(Weight w, double mutation) {
+		Random rn = new Random();
+		int idx1 = rn.nextInt(9);
+		int idx2 = rn.nextInt(9);
+
+		int big = Math.max(idx1, idx2);
+		int small = Math.min(idx1, idx2);
+
+		for (int i = small; i <= big; i++) {
+			w.variation[i] += (2 * mutation - mutation);
+		}
+	}
+
+	private double make_mutation(Weight p1) {
+		double result = 0.0;
+
+		for (int i = 0; i < p1.variation.length; i++) {
+			result += Math.abs(p1.variation[i]);
+		}
+
+		return result / 20;
+	}
+
+	private void cross_over(Weight p1, Weight p2) {
+		Random rn = new Random();
+		int idx1 = rn.nextInt(9);
+		int idx2 = rn.nextInt(9);
+
+		int big = Math.max(idx1, idx2);
+		int small = Math.min(idx1, idx2);
+
+		for (int i = small; i <= big; i++) {
+			swap(i, p1, p2);
+		}
+
+	}
+
+	private void swap(int idx, Weight p1, Weight p2) {
+		double temp_p1 = p1.variation[idx];
+		p1.variation[idx] = p2.variation[idx];
+		p2.variation[idx] = temp_p1;
+	}
+}
