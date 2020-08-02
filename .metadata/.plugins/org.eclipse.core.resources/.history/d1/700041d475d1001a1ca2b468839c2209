@@ -1,0 +1,9 @@
+
+public class Test {
+	
+	public static void main(String[] args) {
+		NyPizza np = new NyPizza.Builder(NyPizza.Size.SMALL).addTopping(Pizza.Topping.HAM).build();
+		
+		System.out.println(np.getTopping());
+	}
+}

@@ -1,0 +1,149 @@
+import java.util.*;
+
+public class test1 {
+	public static void main(String[] args) {
+		List<String> c = new ArrayList<>();
+		c.add("green");
+		c.add("red");
+		c.add("blue");
+		c.add("yellow");
+		c.add("pink");
+
+		List<Integer> x = new ArrayList<>();
+		x.add(100);
+		x.add(200);
+		x.add(300);
+		x.add(400);
+		x.add(500);
+
+		List<Integer> y = new ArrayList<>();
+		y.add(100);
+		y.add(200);
+		y.add(300);
+		y.add(400);
+		y.add(500);
+		
+		List<String> q = new ArrayList<>();
+		q.add("green");
+		q.add("red");
+		q.add("blue");
+		q.add("yellow");
+		q.add("pink");
+
+		for (String s : closestStraightCity(c, x, y, q)) {
+			System.out.println(s + " ");
+		}
+
+	}
+
+	public static List<String> closestStraightCity(List<String> c, List<Integer> x, List<Integer> y, List<String> q) {
+		// Write your code here
+		HashMap<String,List<city>> map = new ArrayList<>();
+		
+		for(int i = 0 ; i< c.size() ; i++) {
+			int x_c = x.get(i);
+			int y_c = y.get(i);
+			
+			String n = c.get(i);
+			
+			map.put(n, new ArrayList<>());
+		}
+
+	}
+
+	private static void fill_in_query_city(List<String> q, List<city> query_city, List<city> city_list) {
+		for (String qc : q) {
+			for (int i = 0; i < city_list.size(); i++) {
+				if (city_list.get(i).name.equals(qc)) {
+					int x = city_list.get(i).x;
+					int y = city_list.get(i).y;
+					query_city.add(new city(qc, x, y));
+				}
+			}
+		}
+	}
+	
+	private static int lower_bound(int target, List<city> city_list) {
+		int left =0;
+		int right = city_list.size();
+		
+		while(left < right) {
+			int mid = (right+ left) /2;
+			
+			if(city_list.get(mid).x < target)
+				left = mid + 1;
+			else
+				right = mid;
+		}
+		
+		
+		return left;
+	}
+	
+	private static int upper_bound(int target, List<city> city_list) {
+		int left =0;
+		int right = city_list.size();
+		
+		while(left < right) {
+			int mid = (right+ left) /2;
+			
+			if(city_list.get(mid).x <= target)
+				left = mid + 1;
+			else
+				right = mid;
+		}
+		
+		
+		return left;
+	}
+	
+	private static int lower_bound_y(int target, List<city> city_list) {
+		int left =0;
+		int right = city_list.size();
+		
+		while(left < right) {
+			int mid = (right+ left) /2;
+			
+			if(city_list.get(mid).y < target)
+				left = mid + 1;
+			else
+				right = mid;
+		}
+		
+		
+		return left;
+	}
+	
+	private static int upper_bound_y(int target, List<city> city_list) {
+		int left =0;
+		int right = city_list.size();
+		
+		while(left < right) {
+			int mid = (right+ left) /2;
+			
+			if(city_list.get(mid).y <= target)
+				left = mid + 1;
+			else
+				right = mid;
+		}
+		
+		
+		return left;
+	}
+
+	private static class city {
+		String name;
+		int x, y, distance;
+
+		public city(String n, int dist) {
+			this.name = n;
+			this.distance = dist;
+		}
+
+		public city(String n, int x, int y) {
+			this.name = n;
+			this.x = x;
+			this.y = y;
+		}
+	}
+}

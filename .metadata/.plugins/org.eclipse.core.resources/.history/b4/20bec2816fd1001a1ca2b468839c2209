@@ -1,0 +1,23 @@
+
+public class NyPizza extends Pizza{
+	public enum SIZE { SMALL,MEDIUM,LARGE}
+	private int size;
+	
+	public static class Builder extends Pizza.Builder<Builder>{
+		private int size;
+		
+		@Override
+		public NyPizza build() {
+			
+		}
+		
+		@Override
+		protected NyPizza self() {
+			return this;
+		}
+	}
+	
+	private NyPizza() {
+		
+	}
+}

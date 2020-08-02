@@ -21,22 +21,24 @@ public class tetris_board extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(500, 700);
 		setResizable(false);
-		setContentPane(panel);
+		setContentPane(panel); //setContentPane을 이용하여 panel을 부착하게 되면 테트리스를 표현할 수 있다.
 		setLocation(500,200);
 		setVisible(true);
 	}
 
+	//PlayThread에서 만들어진 테트리스 블럭을 설정한다.
 	public void set_block(List<Point> b) {
 		this.block = b;
 	}
 
+	//PlayThread에서 만들어진 테트리스 보드판을 표현하는 이차원 int형 배열을 설정한다.
 	public void set_board(int[][] board) {
 		this.board = board;
 	}
 
 	/*
-	 * 선 그리는 것은 좌표로 계산, setSize 같은 경우는 픽셀 단위로 계산 x,y 좌표를 2차원 배열의 인덱스로 생각 x => 뒤집어서
-	 * 생각
+	 * 테트리스를 표현하는 Panel 클래스
+	 * 생성자에서 키 이벤트를 부착한다.
 	 */
 	private class MyPanel extends JPanel {
 		public MyPanel() {
@@ -50,6 +52,10 @@ public class tetris_board extends JFrame {
 			draw_board(g);
 		}
 
+		/*
+		 * 테트리스 보드판과 테트리스 블럭을 그리는 메소드
+		 * swing의 좌표 개념과 통상적으로 우리가 코딩할 때 생각하는 좌표의 개념이 다르기 때문에 주의해야 한다.
+		 */
 		public void draw_board(Graphics g) {
 			g.setColor(Color.cyan);
 			

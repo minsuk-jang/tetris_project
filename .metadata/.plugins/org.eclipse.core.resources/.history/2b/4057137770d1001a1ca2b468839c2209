@@ -1,0 +1,13 @@
+
+public class Calzone extends Pizza{
+	private boolean source = false;
+	
+	public static class Builder extends Pizza.Builder<Builder>>{
+		private boolean source;
+		
+		@Override
+		protected Calzone self() {
+			return this;
+		}
+	}
+}

@@ -107,7 +107,7 @@ public class Generic {
 	}
 
 	private void write(Weight w) {
-		File f = new File("C:\\Users\\jms87\\Desktop\\tetris_project\\output.txt");
+		File f = new File("C:\\Users\\jms87\\Desktop\\tetris_project\\output_2.txt");
 		try {
 			FileWriter fw = new FileWriter(f, true);
 			fw.write(w.line + " ");
@@ -159,7 +159,7 @@ public class Generic {
 		 */
 
 		for (int i = 0; i < 9; i++) {
-			w.variation[i] += (Math.random() * (2 + mutation) - mutation);
+			w.variation[i] += (Math.random() * (2 * mutation) - mutation);
 		}
 	}
 

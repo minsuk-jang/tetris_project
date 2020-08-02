@@ -1,0 +1,8 @@
+
+public class Box<T> {
+	private T t;
+	public T get() {return this.t;}
+	public void set(T tar) {
+		this.t = tar;
+	}
+}

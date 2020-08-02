@@ -16,7 +16,7 @@ public class play_game {
 			}
 		};
 
-		timer.schedule(task, 0, 1000);
+		timer.schedule(task, 0, 1000); //1초마다 task를 수행한다.
 
 		pt.start();
 	}

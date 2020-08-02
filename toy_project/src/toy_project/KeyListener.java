@@ -6,6 +6,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.*;
 
+//키 입력 이벤트를 담당하는 클래스
 public class KeyListener extends KeyAdapter {
 
 	@Override
@@ -24,9 +25,7 @@ public class KeyListener extends KeyAdapter {
 		else if(arg0.getKeyCode() == KeyEvent.VK_SPACE) 
 			PlayThread.dir = 32;
 		
-		if(arg0.getKeyCode() == KeyEvent.VK_S) {
-			
-		}
+
 	}
 
 	@Override

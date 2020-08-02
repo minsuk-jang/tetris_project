@@ -1,5 +1,6 @@
 package toy_project;
 
+//좌표를 저장하는 Point 클래스
 public class Point {
 	int x, y;
 

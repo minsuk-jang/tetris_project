@@ -1,0 +1,24 @@
+import java.util.*;
+
+public class Pizza {
+	public enum Topping {HAM,SAUSAGE,CHEESE}
+	private Set<Topping> toppings;
+	
+	public static abstract class Builder<T extends Builder<T>>{
+		private EnumSet<Topping> toppings;
+		
+		public T addTopping(Topping topping) {
+			toppings.add(Objects.requireNonNull(topping));
+		
+			return self();
+		}
+		
+		abstract protected T self();
+		abstract public Pizza build();
+		
+	}
+	
+	public Pizza(Builder<?> builder) {
+		toppings = builder.toppings.clone();
+	}
+}

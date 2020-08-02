@@ -14,7 +14,7 @@ public class Weight {
 		this.variation = new double[9];
 
 		for (int i = 0; i < 9; i++) {
-			this.variation[i] = Math.round(w[i] *1000.0)/1000.0;
+			this.variation[i] = (Math.round(w[i] *1000.0)/1000.0) % 10;
 		}
 
 		

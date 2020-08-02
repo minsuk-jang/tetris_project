@@ -1,0 +1,10 @@
+
+public class Compare {
+	public static <T extends Number> boolean compare(T a, T b) {
+		double v1 = a.doubleValue();
+		double v2 = b.doubleValue();
+		
+		return Double.compare(v1, v2);
+	}
+	
+}
