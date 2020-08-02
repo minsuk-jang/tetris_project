@@ -2,33 +2,40 @@ package toy_project;
 
 import java.util.*;
 
+//실질적인 테트리스 동작을 하는 클래스
 public class PlayThread extends Thread {
-	private static boolean block_finish = false;
-	public static boolean game_finish = false;
-	private List<Point> b;
+	private static boolean block_finish = false; //테트리스 블럭이 완전히 두었는 지를 판단하는 변수
+	public static boolean game_finish = false; //게임이 종료가 되었는 지 판단하는 변수
+	private List<Point> b; 
 	private int[][] board;
+	
+	//아래, 좌 ,우로  좌표 이동을 할 배열
 	private int[] ud = { 1, 0, 0 };
 	private int[] rl = { 0, -1, 1 };
-	public static int dir = 0;
-	public static long time = 1000;
-	public static int removed_line = 0;
-	private int n;
-	private tetris_board tetris_board;
+	
+	public static int dir = 0; //현재 테트리스 블럭의 이동방향
+	public static int removed_line = 0; //지운 줄 수
+	private int n; //Random 클래스를 통해서 얻은 테트리스 블럭 번호
+	private tetris_board tetris_board; //테트리스 보드판
 	
 	@Override
 	public void run() {
 		tetris_board = new tetris_board();
 		tetris_block block = new tetris_block();
 		board = new int[20][10];
-		tetris_board.set_board(board);
+		tetris_board.set_board(board); //테트리스 보드판을 설정함으로서 tetris_board 클래스에서 해당 이차원 int형 배열을 이용하여 그리기를 수행한다.
 
+		/*
+		 * 무한 루프를 통해서 계속해서 테트리스 게임이 수행된다.
+		 * 이때, block_finish 변수를 이용하여 현재 테트리스 블럭이 완전히 둘 때까지 테트리스 블럭 생성을 막는다.
+		 * game_finish 변수를 통해서 게임의 종료 조건을 확인한다.
+		 */
 		while (true) {
 			try {
 				if (!block_finish) {
 					Random rand = new Random();
 					n = rand.nextInt(7);
 					b = block.make_block(n);
-
 					tetris_board.set_block(b);
 
 					for (Point p : b) {
@@ -38,13 +45,13 @@ public class PlayThread extends Thread {
 						}
 					}
 
-					block_finish = true;
+					block_finish = true; //block_finish를 true로 함으로서 테트리스 블럭 생성을 막는다.
 				}
 
 				if (game_finish) {
 					System.out.println("Game Finish");
 					
-					this.init_game();
+					this.init_game(); //게임이 종료될 조건이면 초기화 시킨다.
 					game_finish = false;
 					continue;
 				}
@@ -72,7 +79,7 @@ public class PlayThread extends Thread {
 						}
 					}
 				}
-				tetris_board.repaint();
+				tetris_board.repaint(); //repaint 메소드를 이용하게 되면 revalidate() 메소드가 수행되면서 paintComponent 메소드를 호출하여 그리기를 시작한다.
 				dir = -1;
 
 			} catch (InterruptedException e) {
@@ -136,6 +143,7 @@ public class PlayThread extends Thread {
 		}
 	}
 
+	//지운 줄 수를 계산하는 메소드
 	private void remove_line() {
 		Set<Integer> idx = new LinkedHashSet<>();
 		for (int i = 0; i < 20; i++) {
@@ -165,6 +173,7 @@ public class PlayThread extends Thread {
 
 	}
 
+	//테트리스 블럭을 이동시키는 메소드
 	private boolean move() {
 		boolean check = true;
 

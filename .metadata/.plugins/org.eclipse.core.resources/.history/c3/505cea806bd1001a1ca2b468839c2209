@@ -1,0 +1,6 @@
+import java.util.*;
+public class Compare<T,K> {
+	public static <T, K> boolean compare(Pair<T,K> p1, Pair<T,K> p2) {
+		
+	}
+}

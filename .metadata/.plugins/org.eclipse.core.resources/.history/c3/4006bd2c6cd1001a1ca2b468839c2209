@@ -1,0 +1,26 @@
+
+public class Pair<T,K> {
+	private T t;
+	private K k;
+	
+	public Pair(T t ,K k) {
+		this.t =t;
+		this.k =k;
+	}
+	
+	public void setKey(K k) {
+		this.k =k;
+	}
+	
+	public K getKey() {
+		return this.k;
+	}
+	
+	public void setValue(T t) {
+		this.t =t;
+	}
+	
+	public T getValue() {
+		return this.t;
+	}
+}

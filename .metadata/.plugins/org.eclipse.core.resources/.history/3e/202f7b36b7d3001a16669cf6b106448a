@@ -1,0 +1,95 @@
+import java.util.*;
+
+public class test1 {
+	public static void main(String[] args) {
+
+	}
+
+	public static List<String> closestStraightCity(List<String> c, List<Integer> x, List<Integer> y, List<String> q) {
+		// Write your code here
+		List<city> city_list = new ArrayList<>();
+
+		for (int i = 0; i < c.size(); i++) {
+			String name = c.get(i);
+			int x_coord = x.get(i);
+			int y_coord = y.get(i);
+
+			city_list.add(new city(name, x_coord, y_coord));
+		}
+
+		List<city> city_temp[] = new ArrayList[city_list.size()];
+
+		for (int i = 0; i < city_temp.length; i++)
+			city_temp[i] = new ArrayList<>();
+		
+		List<String> answer = new ArrayList<>();
+
+
+		for (int i = 0; i < city_list.size(); i++) {
+			city cur_city = city_list.get(i);
+
+			for (int j = i + 1; j < city_list.size(); j++) {
+				city other_city = city_list.get(j);
+
+				if (cur_city.x == other_city.x || cur_city.y == other_city.y) {
+					int dist = Math.abs(cur_city.x - other_city.x) + Math.abs(cur_city.y - other_city.y);
+
+					if (city_temp[i].isEmpty()) {
+						city_temp[i].add(new city(other_city.name, dist));
+					} else {
+						int temp_dist = city_temp[i].get(0).distance;
+
+						if (dist < temp_dist) {
+							city_temp[i].clear();
+							city_temp[i].add(new city(other_city.name, dist));
+						} else if (dist == temp_dist) {
+							String temp_n = city_temp[i].get(0).name;
+
+							if (other_city.name.compareToIgnoreCase(temp_n) < 0) {
+								city_temp[i].clear();
+								city_temp[i].add(new city(other_city.name, dist));
+							}
+						}
+					}
+
+					if (city_temp[j].isEmpty()) {
+						city_temp[j].add(new city(cur_city.name, dist));
+					} else {
+						int temp_dist = city_temp[j].get(0).distance;
+
+						if (dist < temp_dist) {
+							city_temp[j].clear();
+							city_temp[j].add(new city(other_city.name, dist));
+						} else if (dist == temp_dist) {
+							String temp_n = city_temp[j].get(0).name;
+
+							if (other_city.name.compareToIgnoreCase(temp_n) < 0) {
+								city_temp[j].clear();
+								city_temp[j].add(new city(other_city.name, dist));
+							}
+						}
+					}
+				}		
+			}
+			answer.add(city_temp[i].get(0).name);
+			
+		}
+		return answer;
+	}
+
+	private static class city {
+		String name;
+		int x, y, distance;
+
+		public city(String n, int dist) {
+			this.name = n;
+			this.distance = dist;
+		}
+
+		public city(String n, int x, int y) {
+			this.name = n;
+			this.x = x;
+			this.y = y;
+		}
+	}
+}

@@ -1,0 +1,9 @@
+
+public class test {
+	public int get(String t) {
+		return "";
+	}
+	public int get(int t) {
+		return 0;
+	}
+}

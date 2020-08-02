@@ -1,0 +1,8 @@
+
+public class Test {
+	private enum Topping {HAM};
+	
+	public static void main(String[] args) {
+		NyPizza np = new NyPizza.Builder()
+	}
+}

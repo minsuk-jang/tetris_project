@@ -1,0 +1,12 @@
+
+public class Compare<T,K> {
+	public static <T, K> boolean compare(Pair<T,K> p1, Pair<T,K> p2) {
+		boolean key_compare = p1.getKey().equals(p2.getKey());
+		
+		boolean value_compare = p1.getValue().equals(p2.getValue());
+		
+		return key_compare && value_compare;
+	}
+	
+	
+}

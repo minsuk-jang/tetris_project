@@ -1,0 +1,10 @@
+
+public class test {
+	private enum Size {SMALL,MEDIUM,LARGE};
+	
+	
+	public static void main(String[] args) {
+		NyPizza np = new NyPizza.Builder(SMALL).addTopping(SAUSAGE).build();
+		Calzone cz = new Calzone.Builder().build();
+	}
+}

@@ -1,0 +1,7 @@
+
+public class BoxMethodExample {
+	public static void main(String[] args) {
+		Box<String> box = Util.<String>boxing("test");
+		
+	}
+}

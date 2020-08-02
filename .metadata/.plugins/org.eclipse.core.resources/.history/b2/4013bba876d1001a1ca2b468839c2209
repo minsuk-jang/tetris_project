@@ -1,0 +1,22 @@
+import java.util.*;
+public class Test {
+	
+	public static void main(String[] args) {
+		NyPizza np = new NyPizza.Builder(NyPizza.Size.SMALL).addTopping(Pizza.Topping.HAM).addTopping(Pizza.Topping.CHEESE).build();
+		Calzone cz = new Calzone.Builder().addTopping(Pizza.Topping.SAUSAGE).sauceInside().build();
+		Set<Pizza.Topping> set = np.getTopping();
+		Set<Pizza.Topping> set1 = cz.getTopping();
+		
+		for(Pizza.Topping t : set) {
+			System.out.print(t + " ");
+		}
+		
+		System.out.println();
+		
+		for(Pizza.Topping t : set1) {
+			System.out.print(t + " ");
+		}
+		
+		System.out.print(cz.isInsideSource());
+	}
+}

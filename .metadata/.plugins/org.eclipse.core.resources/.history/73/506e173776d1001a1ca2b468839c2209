@@ -1,0 +1,22 @@
+
+public class Calzone extends Pizza{
+	private boolean sauceInside = false;
+	public static class Builder extends Pizza.Builder<Builder>{
+		private boolean sauceInside = false;
+		
+		@Override
+		protected Builder self() {
+			return this;
+		}
+		
+		public Builder sauceInside() {
+			this.sauceInside = true;
+			return this;
+		}
+		
+	}
+	
+	private Calzone(Builder builder) {
+		sauceInside = builder.sauceInside;
+	}
+}

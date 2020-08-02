@@ -1,0 +1,6 @@
+
+public class test {
+	public static void main(String[] args) {
+		Calzone cz = new Calzone.Builder().addTopping(null).build();
+	}
+}
