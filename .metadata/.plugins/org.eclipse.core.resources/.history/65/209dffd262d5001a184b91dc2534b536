@@ -1,0 +1,106 @@
+package genetic_tetris;
+
+import java.util.*;
+import java.io.*;
+
+/*
+ * 664มู : 7.729 4.579 3.201 2.851 8.467 3.576 10.293 1.159 -0.305 
+ */
+
+public class Generic {
+	private Weight[] w;
+	private int size;
+
+	public Generic(int count) {
+		this.size = count;
+		w = new Weight[this.size];
+
+		for (int i = 0; i < w.length; i++) {
+			double hw = Math.random() * (2 * 10) - 10;
+			double bw = Math.random() * (2 * 10) - 10;
+			double aw = Math.random() * (2 * 10) - 10;
+			double cw = Math.random() * (2 * 10) - 10;
+
+			w[i] = new Weight(i + 1, 0, 0, hw, bw, cw, aw);
+		}
+	}
+
+	public Weight[] get_weight() {
+		return w;
+
+	}
+
+	public void cross_over() {
+		List<Weight> temp = new ArrayList<>();
+
+		int avg = 0;
+
+		for (int i = 0; i < w.length; i++) {
+			avg += w[i].line;
+		}
+
+		avg /= w.length;
+
+		for (int i = 0; i < w.length; i++) {
+			if (avg <= w[i].line)
+				temp.add(w[i]);
+		}
+
+		List<Weight> children = new ArrayList<>();
+		make_children(children, temp);
+	}
+
+	private void make_children(List<Weight> children, List<Weight> parent) {
+		if (parent.size() % 2 != 0) {
+
+		} else {
+
+		}
+	}
+
+	private void make(List<Weight> children, List<Weight> parent) {
+		Random rn = new Random();
+		while (children.size() != this.size) {
+			int idx1 = rn.nextInt(parent.size());
+			int idx2 = 0;
+			while (true) {
+				idx2 = rn.nextInt(parent.size());
+				if (idx2 != idx1)
+					break;
+			}
+
+			swap(parent.get(idx1), parent.get(idx2), children);
+		}
+	}
+
+	private void swap(Weight p1, Weight p2, List<Weight> children) {
+		double p1_variation[] = { p1.complete_line_weight, p1.aggregate_height_weight, p1.bumpiness_weight,
+				p1.hole_weight };
+		double p2_variation[] = { p2.complete_line_weight, p2.aggregate_height_weight, p2.bumpiness_weight,
+				p2.hole_weight };
+
+		Random rn = new Random();
+		int idx1 = rn.nextInt(4);
+		int idx2 = rn.nextInt(4);
+
+		int small = Math.min(idx1, idx2);
+		int big = Math.max(idx1, idx2);
+
+		double temp[] = new double[4];
+		double temp2[] = new double[4];
+		System.arraycopy(p1_variation, 0, temp, 0, 4);
+		System.arraycopy(p2_variation, 0, temp2, 0, 4);
+
+		for (int i = small; i <= big; i++) {
+
+		}
+
+	}
+
+	private void swap(double[] src, double[] dest, int idx) {
+		double temp = src[idx];
+		src[idx] = dest[idx];
+		dest[idx] = temp;
+
+	}
+}

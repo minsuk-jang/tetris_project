@@ -1,0 +1,186 @@
+package genetic_tetris;
+
+import java.util.*;
+import java.io.*;
+
+/*
+ * 664มู : 7.729 4.579 3.201 2.851 8.467 3.576 10.293 1.159 -0.305 
+ */
+
+public class Generic {
+	private Weight[] w;
+	private int size;
+
+	public Generic(int count) {
+		this.size = count;
+		w = new Weight[this.size];
+
+		double[] temp = new double[9];
+		for (int i = 0; i < w.length; i++) {
+			for (int j = 0; j < temp.length; j++) {
+				temp[j] = Math.random() * 10 - 5;
+			}
+
+			w[i] = new Weight(i + 1, 0, 0, temp);
+		}
+	}
+
+	public Weight[] get_weight() {
+		return w;
+
+	}
+
+	public void cross_over() {
+		int avr = 0;
+		for (int i = 0; i < w.length; i++) {
+			avr += w[i].line;
+		}
+
+		avr /= w.length;
+
+		List<Weight> temp = new ArrayList<>();
+		for (int i = 0; i < w.length; i++) {
+			if (w[i].line >= avr) {
+				temp.add(new Weight(0, 0, 0, w[i].variation));
+			}
+		}
+
+		List<Weight> temp_children = new ArrayList<>();
+		make_children(temp_children, temp, temp.size() / 5);
+
+		int size = temp_children.size();
+		for (int i = 0; i < size; i++) {
+			for (int j = i + 1; j < size; j++) {
+				cross_over(temp_children.get(i),temp_children.get(j),temp_children);
+			}
+		}
+
+		make_mutation(temp_children);
+		
+		Weight [] w_children = new Weight[this.size];
+		
+		for(int i =0 ; i < this.size ; i++) {
+			temp_children.get(i).number = i+1;
+			w_children[i] = temp_children.get(i);
+		}
+		
+		w = w_children;
+		System.out.println("Create generation");
+
+	}
+	
+	private void make_mutation(List<Weight> children) {
+		int size = this.size - children.size();
+		boolean [] visited = new boolean[children.size()];
+		for(int i =0 ; i <size;  i++) {
+			double mutation = Math.random() * (2*0.5) - 0.5;
+			
+			int idx = getIdx(visited);
+			visited[idx] = true;
+			
+			double [] variation = new double[9];
+			System.arraycopy(children.get(idx).variation, 0, variation, 0, 9);
+			for(int j =0 ; j < 9 ; j++) {
+				variation[j] += mutation;
+			}
+			
+			children.add(new Weight(0,0,0,variation));
+		}
+	}
+
+	private void make_children(List<Weight> temp_children, List<Weight> temp, int size) {
+		if (temp.size() > size) {
+			temp.sort(new Comparator<Weight>() {
+
+				@Override
+				public int compare(Weight o1, Weight o2) {
+					// TODO Auto-generated method stub
+					if (o1.line > o2.line)
+						return -1;
+					else
+						return 1;
+				}
+
+			});
+
+			for (int i = 0; i < size; i++) {
+				temp_children.add(new Weight(0, 0, 0, temp.get(i).variation));
+			}
+		} else if (temp.size() < size) {
+			for (int i = 0; i < temp.size(); i++) {
+				temp_children.add(new Weight(0, 0, 0, temp.get(i).variation));
+			}
+
+			boolean[] visited = new boolean[temp_children.size()];
+			for (int i = 0; i < size - temp.size(); i++) {
+				int idx = getIdx(visited);
+				visited[idx] = true;
+
+				temp_children.add(new Weight(0, 0, 0, temp.get(idx).variation));
+			}
+		}else {
+			for(int i =0 ; i <temp.size() ; i++) {
+				temp_children.add(new Weight(0,0,0,temp.get(i).variation));
+			}
+		}
+	}
+
+	private int getIdx(boolean[] visited) {
+		Random rn = new Random();
+		while (true) {
+			int idx = rn.nextInt(visited.length);
+
+			if (!visited[idx])
+				return idx;
+		}
+	}
+
+	private boolean isFinish(boolean[] visited) {
+		for (int i = 0; i < visited.length; i++) {
+			if (!visited[i])
+				return false;
+		}
+
+		return true;
+	}
+
+	private void cross_over(Weight p1, Weight p2, List<Weight> children) {
+		double[] temp = new double[9];
+		double[] temp1 = new double[9];
+
+		System.arraycopy(p1.variation, 0, temp, 0, 4);
+		System.arraycopy(p2.variation, 4, temp, 4, 5);
+
+		System.arraycopy(p1.variation, 4, temp1, 4, 5);
+		System.arraycopy(p2.variation, 0, temp1, 0, 4);
+
+		children.add(new Weight(0, 0, 0, temp));
+		children.add(new Weight(0, 0, 0, temp1));
+	}
+
+	private void write(Weight w) {
+		File f = new File("C:\\Users\\jms87\\Desktop\\tetris_project\\output_2.txt");
+		try {
+			FileWriter fw = new FileWriter(f, true);
+			fw.write(w.line + " ");
+			for (int i = 0; i < w.variation.length; i++) {
+				fw.write(w.variation[i] + " ");
+			}
+			fw.write("\n");
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void print(Weight w) {
+		System.out.println("MOM Gene : #" + w.number + " | Score : " + w.score + " | line : " + w.line);
+		System.out.println("Blank Weight : " + w.variation[0] + " | Complete Weight : " + w.variation[1]);
+		System.out.println("Round Block Weight : " + w.variation[2] + " | Height Weight : " + w.variation[3]);
+		System.out.println("Down Block Weight : " + w.variation[4] + " | Side Block Weight : " + w.variation[5]);
+		System.out.println("Base line Weight : " + w.variation[6] + " | Hole Weight : " + w.variation[7]);
+		System.out.println("Up Block Weight : " + w.variation[8]);
+
+	}
+
+}

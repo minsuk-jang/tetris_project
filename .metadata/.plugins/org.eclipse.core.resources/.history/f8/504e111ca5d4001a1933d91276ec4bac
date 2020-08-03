@@ -1,0 +1,17 @@
+
+public class test {
+	public static void main(String[] args) {
+		int [] temp = {1,2,3,4,5,6,7};
+		int [] a = new int[temp.length];
+		
+		System.arraycopy(temp, 0, a, 0, 4);
+		
+		for(int i : a)
+			System.out.print(i + " " );
+		
+		System.arraycopy(temp, 4, a, 4, temp.length);
+		
+		for(int i : a)
+			System.out.print(i + " ");
+	}
+}

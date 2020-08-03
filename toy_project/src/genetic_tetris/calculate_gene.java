@@ -6,6 +6,7 @@ public class calculate_gene {
 	private int[][] board;
 	private int[] ud = { -1, 0, 1, 0 };
 	private int[] rl = { 0, 1, 0, -1 };
+	private int [] height;
 
 	public double calculate(List<Point> tmp, int n, int[][] board, Weight w) {
 		this.board = board;
@@ -15,244 +16,109 @@ public class calculate_gene {
 			board[p.x][p.y] = n;
 		}
 
-		boolean[][] visited = new boolean[20][10];
-
-		int bc = blank_count(tmp);
 		int cl = complete_line();
-		int rb = round_block(tmp);
-		int h = cal_height(tmp);
-		int d_blank = down_blank(tmp);
-		int sb = side_block(tmp);
-		int bb = below_block(tmp);
-
-		int hc = hole_count(tmp, visited);
-		int ub = up_block(visited);
-
-		double result = cal_result(bc, cl, rb, h, d_blank, sb, bb, hc, ub, w);
-
-		return (Math.round((result / 50) * 1000.0) / 1000.0);
-	}
-
-	private double cal_result(int bc, int cl, int rb, int h, int d_blank, int sb, int bb, int hc, int ub, Weight w) {
-		double result = 0.0;
-
-		int[] c = { cl, rb, h, sb, bb, bc, d_blank, hc, ub };
-
-		for (int i = 0; i <= 4; i++) {
-			result += (c[i] * w.variation[i]);
-		}
+		int h = hole();
+		int aggregate = aggregate_height();
+		int bump = bumpiness();
 		
-		for(int i = 4 ; i < c.length;  i++)
-			result -= (c[i] * (w.variation[i]));
-
+		double result = ((cl * w.complete_line_weight)+ (h * w.hole_weight) + (bump * w.bumpiness_weight) + 
+				(w.aggregate_height_weight * aggregate)) / 50;
+		
+		
 		return result;
 	}
-
-	private int up_block(boolean[][] visited) {
-		int ret = 0;
-
-		for (int i = 0; i < 10; i++) {
-			inner: for (int j = 0; j < 20; j++) {
-				if (!visited[j][i]) {
-					int h = j;
-
-					for (int k = h - 1; k >= 0; k--) {
-						if (board[k][i] != 0)
-							ret++;
-						else
-							break inner;
-					}
-				}
+	
+	private void print(int cl ,int h , int agg ,int bump) {
+		System.out.println("Complete line: " + cl + " hole: " + h + " aggregate height: " + agg + " bumpiness: " + bump);
+	}
+	
+	private int complete_line() {
+		int ret =0 ;
+		
+		int line = 0;
+		for(int i= 0 ; i < board.length ; i++) {
+			int count =0 ;
+			for(int j =0 ; j < board[i].length ; j++) {
+				if(board[i][j] != 0)
+					count++;
 			}
+			
+			if(count == 10)
+				ret++;
 		}
-
+		
 		return ret;
 	}
-
-	private int hole_count(List<Point> tmp, boolean[][] visited) {
-		for (int i = 0; i < 20; i++) {
-			for (int j = 0; j < 10; j++) {
-				if (board[i][j] != 0)
+	
+	private int hole() {
+		boolean [][] visited= new boolean[20][10];
+		
+		//테트리스 블럭을 채움
+		for(int i =0 ; i < visited.length ; i ++) {
+			for(int j =0 ; j < visited[i].length; j ++) {
+				if(board[i][j] != 0)
 					visited[i][j] = true;
 			}
 		}
-
-		bfs(visited, 0, 4);
-
+		
+		bfs(0,4,visited);
 		int ret = 0;
-
-		for (int i = 0; i < 20; i++) {
-			for (int j = 0; j < 10; j++) {
-				if (!visited[i][j])
+		for(int i =0 ; i < visited.length; i ++) {
+			for(int j =0 ; j < visited[i].length ; j++) {
+				if(!visited[i][j])
 					ret++;
 			}
 		}
-
+		
 		return ret;
 	}
-
-	private void bfs(boolean[][] visited, int x, int y) {
+	
+	private void bfs(int startX ,int startY, boolean [][] visited) {
 		Queue<Point> q = new LinkedList<>();
-		q.add(new Point(x, y));
-		visited[x][y] = true;
-
-		while (!q.isEmpty()) {
+		q.add(new Point(startX,startY));
+		visited[startX][startY]  = true;
+		
+		while(!q.isEmpty()) {
 			Point cur = q.poll();
-
-			for (int i = 0; i < 4; i++) {
-				int nx = cur.x + ud[i];
+			
+			for(int i=0 ; i  <4 ; i++) {
+				int nx = cur.x  + ud[i];
 				int ny = cur.y + rl[i];
-
-				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10 || visited[nx][ny])
+				
+				if(nx <0 || nx >= 20 || ny < 0 || ny>= 10 || visited[nx][ny])
 					continue;
-
+				
 				visited[nx][ny] = true;
-				q.add(new Point(nx, ny));
+				q.add(new Point(nx,ny));
 			}
 		}
-
 	}
-
-	// 아래 접하는 블럭
-	private int below_block(List<Point> tmp) {
-		boolean[][] visited = new boolean[20][10];
-		for (Point p : tmp) {
-			visited[p.x][p.y] = true;
+	
+	private int bumpiness() {
+		int ret =0 ;
+		for(int i = 1 ; i < board[0].length ; i++) {
+			ret += Math.abs(height[i-1] - height[i]);
 		}
-
-		int ret = 0;
-
-		for (Point p : tmp) {
-			int nx = p.x + 1;
-			int ny = p.y;
-
-			if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10) {
-				ret++;
-				continue;
-			}
-
-			if (!visited[nx][ny] && board[nx][ny] != 0)
-				ret++;
-		}
-
+		
 		return ret;
 	}
-
-	private int side_block(List<Point> tmp) {
-
-		boolean[][] visited = new boolean[20][10];
-		for (Point p : tmp) {
-			visited[p.x][p.y] = true;
-		}
-
-		int ret = 0;
-		for (Point p : tmp) {
-			for (int i = 0; i < 4; i++) {
-				if (i % 2 != 0) {
-					int nx = p.x + ud[i];
-					int ny = p.y + rl[i];
-
-					if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10) {
-						ret++;
-						continue;
-					}
-
-					if (!visited[nx][ny] && board[nx][ny] != 0)
-						ret++;
-				}
-			}
-		}
-
-		return ret;
-	}
-
-	private int down_blank(List<Point> tmp) {
-		int ret = 0;
-		for (Point p : tmp) {
-			int curX = p.x;
-			while (true) {
-				int nx = curX + 1;
-				int ny = p.y;
-				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10 || board[nx][ny] != 0)
+	
+	private int aggregate_height() {
+		int ret =0 ;
+		height = new int[10];
+		for(int i =0 ; i < board[0].length ; i++) {
+			int start = 0;
+			
+			while(start< 20) {
+				if(board[start][i] == 0)
+					start++;
+				else
 					break;
-				ret++;
-				curX = nx;
 			}
+			height[i] = start;
+			ret += start;
 		}
-
-		return ret;
-	}
-
-	private int cal_height(List<Point> tmp) {
-		int height = Integer.MAX_VALUE;
-
-		for (Point p : tmp) {
-			height = Math.min(height, p.x);
-		}
-
-		return height;
-	}
-
-	private int round_block(List<Point> tmp) {
-		boolean[][] visited = new boolean[20][10];
-
-		for (Point p : tmp) {
-			visited[p.x][p.y] = true;
-		}
-
-		int ret = 0;
-		for (Point p : tmp) {
-			for (int i = 0; i < 4; i++) {
-				int nx = p.x + ud[i];
-				int ny = p.y + rl[i];
-
-				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10 || visited[nx][ny] || board[nx][ny] == 0)
-					continue;
-
-				visited[nx][ny] = true;
-				ret++;
-			}
-		}
-
-		return ret;
-	}
-
-	private int complete_line() {
-		int ret = 0;
-		for (int i = 0; i < 20; i++) {
-			int count = 0;
-			for (int j = 0; j < 10; j++) {
-				if (board[i][j] != 0)
-					count++;
-			}
-
-			if (count == 10)
-				ret++;
-		}
-
-		return ret;
-	}
-
-	private int blank_count(List<Point> tmp) {
-		boolean[][] visited = new boolean[20][10];
-		for (Point p : tmp) {
-			visited[p.x][p.y] = true;
-		}
-
-		int ret = 0;
-		for (Point p : tmp) {
-			for (int i = 0; i < 4; i++) {
-				int nx = p.x + ud[i];
-				int ny = p.y + rl[i];
-
-				if (nx < 0 || nx >= 20 || ny < 0 || ny >= 10 || visited[nx][ny] || board[nx][ny] != 0)
-					continue;
-
-				visited[nx][ny] = true;
-				ret++;
-			}
-		}
-
+		
 		return ret;
 	}
 }

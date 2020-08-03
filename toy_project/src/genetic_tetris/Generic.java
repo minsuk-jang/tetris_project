@@ -15,13 +15,13 @@ public class Generic {
 		this.size = count;
 		w = new Weight[this.size];
 
-		double[] temp = new double[9];
 		for (int i = 0; i < w.length; i++) {
-			for (int j = 0; j < temp.length; j++) {
-				temp[j] = Math.random() * 10 - 5;
-			}
+			double hw = Math.random() * (2 *1) - 1;
+			double bw = Math.random() * (2 * 1) - 1;
+			double aw = Math.random() * (2 * 1) - 1;
+			double cw = Math.random() * (2 * 1) - 1;
 
-			w[i] = new Weight(i + 1, 0, 0, temp);
+			w[i] = new Weight(i + 1, 0, 0, hw, bw, cw, aw);
 		}
 	}
 
@@ -30,177 +30,152 @@ public class Generic {
 
 	}
 
-	private void selection(List<Weight> list) {
-		for (int i = 0; i < this.size; i++) {
-			list.add(w[i]);
+	public void cross_over() {
+		List<Weight> temp = new ArrayList<>();
+
+		int avg = 0;
+
+
+		int big = 0, big_idx = 0;
+		for (int i = 0; i < w.length; i++) {
+			avg += w[i].line;			
+
+			if (big < w[i].line) {
+				big = w[i].line;
+				big_idx = i;
+			}
 		}
 
-		list.sort(new Comparator<Weight>() {
+		avg /= w.length;
 
-			@Override
-			public int compare(Weight o1, Weight o2) {
-				// TODO Auto-generated method stub
-				if (o1.line > o2.line)
-					return -1;
-				else if (o1.line == o2.line) {
-					if (o1.score > o2.score)
-						return -1;
-					else if (o1.score == o2.score)
-						return 0;
-					else
-						return 1;
-				} else
-					return 1;
-			}
+		for (int i = 0; i < w.length; i++) {
+			if (avg <= w[i].line)
+				temp.add(w[i]);
+		}
 
-		});
+		List<Weight> children = new ArrayList<>();
+		
+		System.out.print("Size: " + temp.size() + " ");
+		print(w[big_idx]);
+		
+		
+		make_children(children, temp); // 자식들을 만든다.
+		adjust_mutation(children,temp);
+
+		for (int i = 0; i < children.size(); i++) {
+			children.get(i).line = 0;
+			children.get(i).number = i + 1;
+			children.get(i).score = 0;
+			w[i] = children.get(i);
+		}
+
+		System.out.println("Complete Generation\n");
+	}
+
+	private void print(Weight c) {
+		System.out.println("#" + c.number + " line: " + c.line + " score: " + c.score);
+		System.out.println("hole: " + c.hole_weight + " | bumpiness: " + c.bumpiness_weight + " | Complete line: "
+				+ c.complete_line_weight + " | Aggregate Height: " + c.aggregate_height_weight);
 
 	}
 
-	public void cross_over() {
-		List<Weight> list = new ArrayList<>();
-		selection(list);
-
-		write(list.get(0));
-		Weight[] children = new Weight[this.size];
-
-		// 상위 50% 부모 개체에서 자식 개체에게 전달
-		int s = (int) Math.round((this.size * 0.5)) % 2 == 0 ? (int) (this.size * 0.5)
-				: (int) Math.round((this.size * 0.5)) + 1;
-		boolean[] check = new boolean[s];
-
+	private void adjust_mutation(List<Weight> children,List<Weight> parent) {
+		boolean[] visited = new boolean[parent.size()];
+		int size = (int) (children.size() * 0.1);
 		Random rn = new Random();
 
-		List<Weight> c_list = new ArrayList<>();
+		for (int k = 0; k < size; k++) {
+			int i = getIdx(visited);
+			int idx1 = rn.nextInt(4);
+			int idx2 = rn.nextInt(4);
 
-		// 교배
-		while (!finish(check)) {
-			Weight p1 = list.get(get_idx(check, s));
-			Weight p2 = list.get(get_idx(check, s));
+			int small = Math.min(idx1, idx2);
+			int big = Math.max(idx1, idx2);
 
-			cross_over_1(p1, p2, c_list);
-		}
+			double[] temp = { children.get(i).hole_weight, children.get(i).bumpiness_weight,
+					children.get(i).complete_line_weight, children.get(i).aggregate_height_weight };
 
-		check = new boolean[c_list.size()];
-		for (int i = 0; i < this.size; i++) {
-			children[i] = c_list.get(get_idx(check, c_list.size()));
-			children[i].number = i + 1;
-		}
-
-		// 가장 좋은 개체로 돌연 변이
-		double mutation = make_mutation(list.get(0));
-		print(list.get(0));
-		System.out.println("Mutation : " + mutation);
-
-		// 염색체의 50%만 변이
-		int mutation_size = (int) Math.round(this.size * 0.25);
-		check = new boolean[this.size];
-
-		for (int i = 0; i < mutation_size; i++) {
-			int temp = rn.nextInt(this.size);
-			adjust_mutation(children[temp], mutation);
-		}
-
-		this.w = children;
-
-		System.out.println("Complete generation\n");
-	}
-
-	private void write(Weight w) {
-		File f = new File("C:\\Users\\jms87\\Desktop\\tetris_project\\output_2.txt");
-		try {
-			FileWriter fw = new FileWriter(f, true);
-			fw.write(w.line + " ");
-			for (int i = 0; i < w.variation.length; i++) {
-				fw.write(w.variation[i] + " ");
+			for (int j = small; j <= big; j++) {
+				double mutation = Math.random() * (2 * 0.5) - 0.5;
+				temp[j] += mutation;
 			}
-			fw.write("\n");
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
-	private boolean finish(boolean[] check) {
-		for (int i = 0; i < check.length; i++)
-			if (!check[i])
-				return false;
-
-		return true;
-	}
-
-	private void print(Weight w) {
-		System.out.println("MOM Gene : #" + w.number + " | Score : " + w.score + " | line : " + w.line);
-		System.out.println("Blank Weight : " + w.variation[0] + " | Complete Weight : " + w.variation[1]);
-		System.out.println("Round Block Weight : " + w.variation[2] + " | Height Weight : " + w.variation[3]);
-		System.out.println("Down Block Weight : " + w.variation[4] + " | Side Block Weight : " + w.variation[5]);
-		System.out.println("Base line Weight : " + w.variation[6] + " | Hole Weight : " + w.variation[7]);
-		System.out.println("Up Block Weight : " + w.variation[8]);
-
-	}
-
-	private int get_idx(boolean[] check, int size) {
+	private int getIdx(boolean[] visited) {
 		Random rn = new Random();
 		while (true) {
-			int idx = rn.nextInt(size);
-
-			if (!check[idx]) {
-				check[idx] = true;
+			int idx = rn.nextInt(visited.length);
+			if (!visited[idx]) {
+				visited[idx] = true;
 				return idx;
 			}
 		}
 	}
 
-	private void adjust_mutation(Weight w, double mutation) {
-		/*
-		 * int idx1 = rn.nextInt(9); int idx2 = rn.nextInt(9);
-		 * 
-		 * int big = Math.max(idx1, idx2); int small = Math.min(idx1, idx2);
-		 */
+	private void make_children(List<Weight> children, List<Weight> parent) {
+		if (parent.size() % 2 != 0) {
+			int idx = 0;
+			int small = Integer.MAX_VALUE;
+			for (int i = 0; i < parent.size(); i++) {
+				if (small > parent.get(i).line) {
+					small = parent.get(i).line;
+					idx = i;
+				}
+			}
 
-		for (int i = 0; i < 9; i++) {
-			w.variation[i] += (Math.random() * (2 * mutation) - mutation);
+			parent.remove(idx);
+		}
+
+		make(children, parent);
+	}
+
+	private void make(List<Weight> children, List<Weight> parent) {
+		Random rn = new Random();
+		while (children.size() != this.size) {
+			int idx1 = rn.nextInt(parent.size());
+			int idx2 = 0;
+			while (true) {
+				idx2 = rn.nextInt(parent.size());
+				if (idx2 != idx1)
+					break;
+			}
+
+			addChildren(parent.get(idx1), parent.get(idx2), children);
 		}
 	}
 
-	private double make_mutation(Weight p1) {
-		double result = 0.0;
+	private void addChildren(Weight p1, Weight p2, List<Weight> children) {
+		double p1_variation[] = { p1.hole_weight, p1.bumpiness_weight, p1.complete_line_weight,
+				p1.aggregate_height_weight };
+		double p2_variation[] = { p2.hole_weight, p2.bumpiness_weight, p2.complete_line_weight,
+				p2.aggregate_height_weight };
 
-		for (int i = 0; i < p1.variation.length; i++) {
-			result += Math.abs(p1.variation[i]);
+		Random rn = new Random();
+		int idx1 = rn.nextInt(4);
+		int idx2 = rn.nextInt(4);
+
+		int small = Math.min(idx1, idx2);
+		int big = Math.max(idx1, idx2);
+
+		double temp[] = new double[4];
+		double temp2[] = new double[4];
+		System.arraycopy(p1_variation, 0, temp, 0, 4);
+		System.arraycopy(p2_variation, 0, temp2, 0, 4);
+
+		for (int i = small; i <= big; i++) {
+			swap(temp, temp2, i);
 		}
 
-		return Math.round((result / 15) * 1000.0) / 1000.0;
-	}
-
-	private void cross_over_1(Weight p1, Weight p2, List<Weight> temp) {
-		double[] p1_var = new double[p1.variation.length];
-		System.arraycopy(p1.variation, 0, p1_var, 0, p1_var.length);
-		double[] p2_var = new double[p2.variation.length];
-		System.arraycopy(p2.variation, 0, p2_var, 0, p2_var.length);
-
-		int small = 0;
-		int big = 4;
-
-		for (int i = small; i < big; i++) {
-			swap(i, p1.variation, p2.variation);
-		}
-
-		for (int i = big; i < p1_var.length; i++) {
-			swap(i, p1_var, p2_var);
-		}
-
-		int idx = temp.size() + 1;
-		temp.add(new Weight(idx++, 0, 0, p1_var));
-		temp.add(new Weight(idx++, 0, 0, p2_var));
-		temp.add(new Weight(idx++, 0, 0, p1.variation));
-		temp.add(new Weight(idx++, 0, 0, p2.variation));
+		children.add(new Weight(0, 0, 0, temp[0], temp[1], temp[2], temp[3]));
+		children.add(new Weight(0, 0, 0, temp2[0], temp2[1], temp2[2], temp2[3]));
 
 	}
 
-	private void swap(int idx, double[] p1, double[] p2) {
-		double temp_p1 = p1[idx];
-		p1[idx] = p2[idx];
-		p2[idx] = temp_p1;
+	private void swap(double[] src, double[] dest, int idx) {
+		double temp = src[idx];
+		src[idx] = dest[idx];
+		dest[idx] = temp;
+
 	}
 }
