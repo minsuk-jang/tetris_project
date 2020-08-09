@@ -1,0 +1,35 @@
+import java.util.*;
+
+public class test {
+	public static void main(String[] args) {
+		List<t> array= new ArrayList<>();
+		array.add(new t(1,2));
+		array.add(new t(3,4));
+		
+		t temp = make(array.get(0),array.get(1));
+
+		for (t a : array)
+			System.out.print(a.a + " " + a.b);
+
+		System.out.println();
+		for (t i : temp)
+			System.out.print(i.a + " " + i.b);
+	}
+
+	private static t make(t a, t b) {
+		t temp = null;
+		
+		temp = new t(a.a + b.b , a.b + b.a);
+		
+		return temp;
+	}
+
+	private static class t {
+		int a, b;
+
+		public t(int a, int b) {
+			this.a = a;
+			this.b = b;
+		}
+	}
+}

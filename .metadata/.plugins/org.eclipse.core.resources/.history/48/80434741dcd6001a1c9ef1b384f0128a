@@ -1,0 +1,9 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class play_game {
+	public static void main(String[] args) {
+		
+	}
+}

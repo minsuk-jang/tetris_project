@@ -3,204 +3,500 @@ package genetic_tetris;
 import java.util.*;
 import java.io.*;
 
-/*
- * 664줄 : 7.729 4.579 3.201 2.851 8.467 3.576 10.293 1.159 -0.305 
- */
-
 public class Generic {
-	private Weight[] w;
-	private int size;
+	public static int[][] board = new int[20][10]; // 테트리스 보드판
+	private tetris_board t_board;
+	private tetris_block t_block;
+	private Random rn;
+	private long TIME = 10;
+	public static int GENERATION = 1;
+	public static int BEST_LINE = 0;
+	public static int CURRENT_LINE = 0;
+	public static int CURGENE = 0;
+	public static int ROUND = 0;
 
-	public Generic(int count) {
-		this.size = count;
-		w = new Weight[this.size];
+	public Generic() {
+		this.t_block = new tetris_block();
+		this.t_board = new tetris_board();
+		rn = new Random();
+	}
 
-		double[] temp = new double[9];
-		for (int i = 0; i < w.length; i++) {
-			for (int j = 0; j < temp.length; j++) {
-				temp[j] = Math.random() * 10 - 5;
+	// 유전 알고리즘 시작하는 메소드
+	public void start(int size) {
+		List<Indiviual> generation = new ArrayList<>();
+
+		// 초기 세대는 랜덤으로 유전자를 사이즈만큼 생성한다.
+		for (int i = 0; i < size; i++) {
+			generation.add(generateRandom(i + 1));
+		}
+
+		computeFitness(generation, 10); // 사용자가 지정한 게임 횟수만큼 게임 수행
+		sort(generation);
+
+		while (true) {
+			List<Indiviual> candidate = new ArrayList<>();
+
+			// 30% 유전자 선택
+			for (int i = 0; i < (int) (size * 0.3); i++) {
+				Indiviual[] temp = tournamentSelection(generation, (int) (size * 0.1));
+				Indiviual final_candidate = cross_over(temp[0], temp[1]);
+				final_candidate.number = i + 1;
+				// 5% 변이
+				if (Math.random() < 0.05) {
+					mutation(final_candidate);
+				}
+				normalize(final_candidate);
+				// 후보 유전자 생성
+				candidate.add(final_candidate);
 			}
 
-			w[i] = new Weight(i + 1, 0, 0, temp);
+			System.out.println("Generate candidate gene : #" + candidate.size());
+			computeFitness(candidate, 10);
+			deleteLowFitness(candidate, generation);
+
+			int total_fitness = 0;
+
+			for (int i = 0; i < generation.size(); i++) {
+				total_fitness += generation.get(i).fittness;
+			}
+
+			System.out.println("Avg fitness : " + total_fitness / generation.size());
+			System.out.println("Best fitness : " + generation.get(0).fittness);
+			System.out.println("Best Gene: #" + generation.get(0).number);
+
+			resetNumber(generation);
+			GENERATION++;
 		}
 	}
 
-	public Weight[] get_weight() {
-		return w;
+	private void resetNumber(List<Indiviual> g) {
+		for (int i = 0; i < g.size(); i++) {
+			g.get(i).number = i + 1;
+			
+		}
+	}
+
+	private void deleteLowFitness(List<Indiviual> candidate, List<Indiviual> parent) {
+		parent= parent.subList(0, parent.size()-candidate.size());
+		parent.addAll(candidate);
+
+		sort(parent);
 
 	}
 
-	private void selection(List<Weight> list) {
-		for (int i = 0; i < this.size; i++) {
-			list.add(w[i]);
+	private void mutation(Indiviual candidate) {
+		double mutation = Math.random() * 0.5 * 2 - 0.5;
+		int idx = rn.nextInt(4);
+
+		switch (idx) {
+		case 0:
+			candidate.hole_weight += mutation;
+			break;
+		case 1:
+			candidate.aggregate_weight += mutation;
+			break;
+		case 2:
+			candidate.complete_line_weight += mutation;
+			break;
+		case 3:
+			candidate.bumpiness_weight += mutation;
+			break;
+		}
+	}
+
+	private Indiviual cross_over(Indiviual gene1, Indiviual gene2) {
+		Indiviual temp = new Indiviual(0, gene1.hole_weight * gene1.fittness + gene2.hole_weight * gene2.fittness,
+				gene1.aggregate_weight * gene1.fittness + gene2.aggregate_weight * gene2.fittness,
+				gene1.complete_line_weight * gene1.fittness + gene2.aggregate_weight * gene2.fittness,
+				gene1.bumpiness_weight * gene1.fittness + gene2.bumpiness_weight * gene2.fittness);
+		return temp;
+	}
+
+	private void normalize(Indiviual temp) {
+		double mean = Math
+				.sqrt(temp.aggregate_weight * temp.aggregate_weight + temp.bumpiness_weight * temp.bumpiness_weight
+						+ temp.complete_line_weight * temp.complete_line_weight + temp.hole_weight * temp.hole_weight);
+
+		temp.aggregate_weight /= mean;
+		temp.hole_weight /= mean;
+		temp.bumpiness_weight /= mean;
+		temp.complete_line_weight /= mean;
+	}
+
+	/*
+	 * size만큼 토너먼트 진행 인덱스가 높을 수록 fitness가 낮다
+	 */
+	private Indiviual[] tournamentSelection(List<Indiviual> generation, int numOfTournament) {
+		Indiviual gene1 = null, gene2 = null;
+		int select_gene1 = generation.size(), select_gene2 = generation.size();
+
+		while (true) {
+			for (int i = 0; i < numOfTournament; i++) {
+				int select = rn.nextInt(generation.size());
+
+				if (gene1 == null || select_gene1 > select) {
+					select_gene2 = select_gene1;
+					gene2 = gene1;
+
+					gene1 = generation.get(select);
+					select_gene1 = select;
+				} else if (gene2 == null || select_gene2 > select) {
+					gene2 = generation.get(select);
+					select_gene2 = select;
+				}
+
+			}
+
+			// 두 유전자의 fitness가 모두 0이 아닌 경우 토너먼트 탈
+			if (gene1.fittness != 0 || gene2.fittness != 0)
+				break;
 		}
 
-		list.sort(new Comparator<Weight>() {
+		return new Indiviual[] { gene1, gene2 };
+	}
+
+	private void sort(List<Indiviual> g) {
+		g.sort(new Comparator<Indiviual>() {
 
 			@Override
-			public int compare(Weight o1, Weight o2) {
+			public int compare(Indiviual arg0, Indiviual arg1) {
 				// TODO Auto-generated method stub
-				if (o1.line > o2.line)
+				if (arg0.fittness > arg1.fittness)
 					return -1;
-				else if (o1.line == o2.line) {
-					if (o1.score > o2.score)
-						return -1;
-					else if (o1.score == o2.score)
-						return 0;
-					else
-						return 1;
-				} else
+				else if (arg0.fittness == arg1.fittness)
+					return 0;
+				else
 					return 1;
 			}
 
 		});
-
 	}
 
-	public void cross_over() {
-		List<Weight> list = new ArrayList<>();
-		selection(list);
+	// 만들어진 유전자를 대상으로 테트리스를 둔다.
+	private void computeFitness(List<Indiviual> generation, int numOfGame) {
 
-		write(list.get(0));
-		Weight[] children = new Weight[this.size];
+		for (Indiviual gene : generation) {
+			CURGENE = gene.number;
+			for (int i = 0; i < numOfGame; i++) {
+				// 입력된 변수만큼 게임을 수행한다.
+				ROUND = i + 1;
+				int current_game_score = 0;
+				outter: while (true) {
+					// 테트리스 블럭 생성
+					List<Point> cur_block = t_block.generateRandomBlock();
+					List<Point> good_position = new ArrayList<>();
+					double big_weight = Integer.MIN_VALUE;
+					TIME =  2;
+					for (int j = 0; j < t_block.numOfRotate; j++) {
+						if (finish(cur_block))
+							break outter;
 
-		// 상위 50% 부모 개체에서 자식 개체에게 전달
-		int s = (int) Math.round((this.size * 0.5)) % 2 == 0 ? (int) (this.size * 0.5)
-				: (int) Math.round((this.size * 0.5)) + 1;
-		boolean[] check = new boolean[s];
+						Object[] ret = move(cur_block, gene);
 
-		Random rn = new Random();
+						if (big_weight < (double) ret[0]) {
+							big_weight = (double) ret[0];
+							copyList((List<Point>) ret[1], good_position);
+						}
 
-		List<Weight> c_list = new ArrayList<>();
+						// 블럭 회전
+						rotate(cur_block);
+						TIME = 0;
+					}
 
-		// 교배
-		while (!finish(check)) {
-			Weight p1 = list.get(get_idx(check, s));
-			Weight p2 = list.get(get_idx(check, s));
+					// 가장 최적의 위치에 블록을 둔다.
+					drawBlock(good_position);
 
-			cross_over_1(p1, p2, c_list);
-		}
-
-		check = new boolean[c_list.size()];
-		for (int i = 0; i < this.size; i++) {
-			children[i] = c_list.get(get_idx(check, c_list.size()));
-			children[i].number = i + 1;
-		}
-
-		// 가장 좋은 개체로 돌연 변이
-		double mutation = make_mutation(list.get(0));
-		print(list.get(0));
-		System.out.println("Mutation : " + mutation);
-
-		// 염색체의 50%만 변이
-		int mutation_size = (int) Math.round(this.size * 0.25);
-		check = new boolean[this.size];
-
-		for (int i = 0; i < mutation_size; i++) {
-			int temp = rn.nextInt(this.size);
-			adjust_mutation(children[temp], mutation);
-		}
-
-		this.w = children;
-
-		System.out.println("Complete generation\n");
-	}
-
-	private void write(Weight w) {
-		File f = new File("C:\\Users\\jms87\\Desktop\\tetris_project\\output_2.txt");
-		try {
-			FileWriter fw = new FileWriter(f, true);
-			fw.write(w.line + " ");
-			for (int i = 0; i < w.variation.length; i++) {
-				fw.write(w.variation[i] + " ");
+					// 지운 줄 수가 스코어가 된다.
+					current_game_score += is_complete_line();
+					BEST_LINE = Math.max(BEST_LINE, current_game_score);
+					CURRENT_LINE = current_game_score;
+					t_board.repaint();
+				}
+				resetBoard();
+				gene.fittness += current_game_score;
 			}
-			fw.write("\n");
-			fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
-	private boolean finish(boolean[] check) {
-		for (int i = 0; i < check.length; i++)
-			if (!check[i])
-				return false;
-
-		return true;
+	// 테트리스 보드판 클리어
+	private void resetBoard() {
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[i].length; j++) {
+				board[i][j] = 0;
+			}
+		}
 	}
 
-	private void print(Weight w) {
-		System.out.println("MOM Gene : #" + w.number + " | Score : " + w.score + " | line : " + w.line);
-		System.out.println("Blank Weight : " + w.variation[0] + " | Complete Weight : " + w.variation[1]);
-		System.out.println("Round Block Weight : " + w.variation[2] + " | Height Weight : " + w.variation[3]);
-		System.out.println("Down Block Weight : " + w.variation[4] + " | Side Block Weight : " + w.variation[5]);
-		System.out.println("Base line Weight : " + w.variation[6] + " | Hole Weight : " + w.variation[7]);
-		System.out.println("Up Block Weight : " + w.variation[8]);
+	private boolean finish(List<Point> block) {
+		for (Point p : block) {
+			if (board[p.x][p.y] != 0)
+				return true;
+		}
+		return false;
+	}
+
+	private void rotate(List<Point> block) {
+		int pivot_x = block.get(1).x;
+		int pivot_y = block.get(1).y;
+
+		for (Point p : block) {
+			p.x = p.x - pivot_x;
+			p.y = p.y - pivot_y;
+		}
+
+		int x_min = 0, x_max = 19, y_max = 9, y_min = 0;
+		for (Point p : block) {
+			int nx = p.x * 0 + -1 * p.y;
+			int ny = p.x * 1 + 0 * p.y;
+
+			p.x = nx + pivot_x;
+			p.y = ny + pivot_y;
+
+			if (p.x < 0)
+				x_min = Math.min(p.x, x_min);
+
+			if (p.x >= 20)
+				x_max = Math.max(p.x, x_max);
+
+			if (p.y < 0)
+				y_min = Math.min(p.y, y_min);
+
+			if (p.y >= 10)
+				y_max = Math.max(p.y, y_max);
+		}
+
+		x_min = Math.abs(x_min);
+		y_min = Math.abs(y_min);
+
+		for (Point p : block) {
+			p.x += x_min;
+			p.y += y_min;
+		}
+
+		x_max -= 19;
+		y_max -= 9;
+
+		for (Point p : block) {
+			p.x -= x_max;
+			p.y -= y_max;
+		}
+
+		int min = Integer.MAX_VALUE;
+
+		for (Point p : block) {
+			min = Math.min(min, p.x);
+		}
+
+		for (Point p : block) {
+			p.x -= min;
+		}
 
 	}
 
-	private int get_idx(boolean[] check, int size) {
-		Random rn = new Random();
+	// 지운 줄 수를 반환하는 메소드
+	private int is_complete_line() {
+		List<Integer> idx = new ArrayList<>();
+
+		for (int i = 0; i < board.length; i++) {
+			int count = 0;
+			for (int j = 0; j < Generic.board[0].length; j++) {
+				if (Generic.board[i][j] != 0)
+					count++;
+			}
+
+			if (count == Generic.board[0].length) {
+				// 줄을 지운다.
+				for (int j = 0; j < Generic.board[0].length; j++) {
+					board[i][j] = 0;
+				}
+				idx.add(i);
+			}
+		}
+
+		for (int i : idx) {
+			for (int j = i - 1; j >= 0; j--) {
+				for (int k = 0; k < Generic.board[j].length; k++) {
+					if (board[j][k] != 0) {
+						board[j + 1][k] = board[j][k];
+						board[j][k] = 0;
+					}
+				}
+			}
+		}
+
+		return idx.size();
+	}
+
+	private void print() {
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[i].length; j++) {
+				System.out.print(board[i][j]);
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+
+	// 테트리스 블럭의 이동에 관련된 메소드
+	private Object[] move(List<Point> b, Indiviual gene) {
+		double big_weight = Integer.MIN_VALUE; // Double.MIN_VALUE는 음수가 아니다.
+		List<Point> big_weight_block = new ArrayList<>();
+		boolean end_down = false, end_right = false;
+
+		List<Point> block = new ArrayList<>();
+		copyList(b, block);
+		move_left(block);
+		List<Point> temp_block = new ArrayList<>();
+
 		while (true) {
-			int idx = rn.nextInt(size);
+			copyList(block, temp_block);
 
-			if (!check[idx]) {
-				check[idx] = true;
-				return idx;
+			if (end_down = move_down(temp_block)) {
+				// 블럭을 아래로 다 내렸을 경우, 현재 가중치 값 계산
+				drawBlock(temp_block);
+				double temp = Calculator.blockFitness(gene.hole_weight, gene.aggregate_weight,
+						gene.complete_line_weight, gene.bumpiness_weight);
+				if (big_weight < temp) {
+					big_weight = temp;
+					copyList(temp_block, big_weight_block);
+				}
+				try {
+					t_board.repaint();
+					Thread.sleep(TIME);
+					deleteBlock(temp_block);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			// 그 후, 우측으로 이동
+			end_right = move_right(block);
+
+			if (end_down && end_right) {
+				break;
 			}
 		}
+
+		Object[] ret = new Object[2];
+		ret[0] = big_weight;
+		ret[1] = big_weight_block;
+		return ret;
 	}
 
-	private void adjust_mutation(Weight w, double mutation) {
-		/*
-		 * int idx1 = rn.nextInt(9); int idx2 = rn.nextInt(9);
-		 * 
-		 * int big = Math.max(idx1, idx2); int small = Math.min(idx1, idx2);
-		 */
-
-		for (int i = 0; i < 9; i++) {
-			w.variation[i] += (Math.random() * (2 * mutation) - mutation);
+	private void copyList(List<Point> src, List<Point> dest) {
+		dest.clear();
+		for (Point p : src) {
+			dest.add(new Point(p.x, p.y));
 		}
 	}
 
-	private double make_mutation(Weight p1) {
-		double result = 0.0;
+	private boolean move_right(List<Point> block) {
+		boolean check = false;
+		for (Point p : block) {
+			check = false;
 
-		for (int i = 0; i < p1.variation.length; i++) {
-			result += Math.abs(p1.variation[i]);
+			int nx = p.x;
+			int ny = p.y + 1;
+
+			if (nx < 0 || nx >= board.length || ny < 0 || ny >= board[0].length || board[nx][ny] != 0)
+				break;
+
+			check = true;
 		}
 
-		return Math.round((result / 15) * 1000.0) / 1000.0;
+		if (check) {
+			for (Point p : block) {
+				p.y += 1;
+			}
+			drawBlock(block);
+			return false;
+		} else
+			return true;
 	}
 
-	private void cross_over_1(Weight p1, Weight p2, List<Weight> temp) {
-		double[] p1_var = new double[p1.variation.length];
-		System.arraycopy(p1.variation, 0, p1_var, 0, p1_var.length);
-		double[] p2_var = new double[p2.variation.length];
-		System.arraycopy(p2.variation, 0, p2_var, 0, p2_var.length);
+	// 테트리스 블럭을 아래로 두는 메소드
+	private boolean move_down(List<Point> block) {
+		while (true) {
+			boolean check = false;
+			deleteBlock(block);
+			for (Point p : block) {
+				check = false;
+				int nx = p.x + 1;
+				int ny = p.y;
 
-		int small = 0;
-		int big = 4;
+				// 배열 범위 밖이거나 테트리스 보드판에 블럭이 존재할 경우
+				if (nx < 0 || nx >= board.length || ny < 0 || ny >= board[0].length || board[nx][ny] != 0)
+					break;
 
-		for (int i = small; i < big; i++) {
-			swap(i, p1.variation, p2.variation);
+				check = true;
+			}
+
+			if (check) {
+				for (Point p : block) {
+					p.x += 1;
+				}
+
+				drawBlock(block);
+			} else
+				return true;
 		}
-
-		for (int i = big; i < p1_var.length; i++) {
-			swap(i, p1_var, p2_var);
-		}
-
-		int idx = temp.size() + 1;
-		temp.add(new Weight(idx++, 0, 0, p1_var));
-		temp.add(new Weight(idx++, 0, 0, p2_var));
-		temp.add(new Weight(idx++, 0, 0, p1.variation));
-		temp.add(new Weight(idx++, 0, 0, p2.variation));
-
 	}
 
-	private void swap(int idx, double[] p1, double[] p2) {
-		double temp_p1 = p1[idx];
-		p1[idx] = p2[idx];
-		p2[idx] = temp_p1;
+	// 테트리스 블럭을 그리는 메소드
+	private void drawBlock(List<Point> block) {
+		for (Point p : block) {
+			board[p.x][p.y] = t_block.color;
+		}
+	}
+
+	// 테트리스 블럭을 지우는 메소드
+	private void deleteBlock(List<Point> block) {
+		for (Point p : block) {
+			board[p.x][p.y] = 0;
+		}
+	}
+
+	// 좌측으로 최대한 이동시킬 수 있는 메소드
+	private void move_left(List<Point> block) {
+		int diff = 1;
+		while (true) {
+			boolean check = false;
+			for (Point p : block) {
+				check = false;
+				int nx = p.x;
+				int ny = p.y - diff;
+
+				// 배열 범위 밖인 경우 혹은 테트리스 보드판에 블럭이 존재할 경우
+				if (nx < 0 || nx >= board.length || ny < 0 || ny >= board[0].length || board[nx][ny] != 0) {
+					break;
+				}
+
+				check = true;
+			}
+
+			// 마지막 블록까지 다 이동이 가능
+			if (check) {
+				diff++;
+			} else {
+				diff--;
+				break;
+			}
+		}
+
+		for (Point p : block) {
+			p.y -= diff;
+		}
+	}
+
+	// 랜덤으로 유전자를 생성하는 메소드
+	private Indiviual generateRandom(int idx) {
+		double hw = Math.random() - 0.5;
+		double aw = Math.random() - 0.5;
+		double bw = Math.random() - 0.5;
+		double clw = Math.random() - 0.5;
+
+		Indiviual temp = new Indiviual(idx, hw, aw, clw, bw);
+		normalize(temp);
+		return temp;
 	}
 }

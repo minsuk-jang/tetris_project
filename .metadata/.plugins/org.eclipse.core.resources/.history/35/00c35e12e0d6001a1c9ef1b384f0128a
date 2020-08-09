@@ -1,0 +1,40 @@
+package genetic_tetris;
+
+import java.util.*;
+
+public class Calculator {
+	private int ud[] = { -1, 0, 1, 0 };
+	private int rl[] = { 0, 1, 0, -1 };
+
+	public static Double blockFitness(double hw, double aw, double clw, double bw) {
+
+	}
+
+	private int hole_count() {
+		boolean[][] visited = new boolean[Generic.board.length][Generic.board[0].length];
+
+		// 테트리스 보드판에 0이 아닌 지점을 찾는다.
+		for (int i = 0; i < Generic.board.length; i++) {
+			for (int j = 0; j < Generic.board[i].length; j++) {
+				if (Generic.board[i][j] != 0)
+					visited[i][j] = true;
+			}
+		}
+
+		bfs(0, 4, visited);
+	}
+
+	private void bfs(int startX, int startY, boolean[][] visited) {
+		Queue<Point> q = new LinkedList<>();
+		q.add(new Point(startX, startY));
+		visited[startX][startY] = true;
+
+		while (!q.isEmpty()) {
+			Point cur = q.poll();
+
+			for (int i = 0; i < 4; i++) {
+
+			}
+		}
+	}
+}
