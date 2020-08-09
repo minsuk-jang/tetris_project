@@ -3,8 +3,26 @@ package genetic_tetris;
 import java.util.*;
 
 public class tetris_block {
-	public List<Point> make_block(int j) {
+	private Random rn; // 테트리스 블럭을 랜덤으로 생성하기 변수
+	public int color, numOfRotate = 4;
+
+	public tetris_block() {
+		rn = new Random();
+	}
+
+	public List<Point> generateRandomBlock() {
+
+		// 1부터 시작하는 이유는 테트리스 보드판이 초기에 0으로 할당되어있기 때문이다.
+		int j = rn.nextInt(7) + 1; // 7개의 테트리스 블럭 중 하나가 랜덤으로 생성된다.
+		this.color = j;
 		List<Point> list = new ArrayList<>();
+
+		if (j == 1 || j == 5 || j == 6)
+			this.numOfRotate = 2;
+		else if (j == 7)
+			this.numOfRotate = 1;
+		else
+			this.numOfRotate = 4;
 
 		if (j == 1) {
 			int[] x_idx = { 0, 0, 0, 0 };

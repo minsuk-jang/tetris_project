@@ -13,21 +13,16 @@ import javax.swing.JPanel;
 
 public class tetris_board extends JFrame {
 	private MyPanel panel = new MyPanel();
-	private int[][] board;
 	private Color[] color = { Color.green, Color.blue, Color.red, Color.cyan, Color.yellow, Color.MAGENTA,Color.pink };
 
 	public tetris_board() {
 		setTitle("Tetris");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(600, 645);
+		setSize(700, 700);
 		setResizable(false);
 		setContentPane(panel);
 		setLocation(500, 200);
 		setVisible(true);
-	}
-
-	public void set_board(int[][] board) {
-		this.board = board;
 	}
 
 	/*
@@ -47,14 +42,16 @@ public class tetris_board extends JFrame {
 		}
 
 		public void draw_board(Graphics g) {
-			for (int i = 0; i < board.length; i++) {
-				for (int j = 0; j < board[i].length; j++) {
-					if (board[i][j] != 0) {
-						g.setColor(color[board[i][j] - 1]);
+			for (int i = 0; i < Generic.board.length; i++) {
+				for (int j = 0; j < Generic.board[i].length; j++) {
+					if (Generic.board[i][j] != 0) {
+						g.setColor(color[Generic.board[i][j] -1]);
 						g.fill3DRect(j * 30, i * 30, 30, 30,true);
 					}
 				}
 			}
+			
+			
 
 			g.setColor(Color.white);
 			for (int i = 1; i <= 10; i++) {
@@ -65,14 +62,12 @@ public class tetris_board extends JFrame {
 				g.drawLine(0, i * 30, 300, i * 30);
 			}
 
-			g.setFont(new Font("Arial", Font.BOLD, 20));
-			g.drawString("Best score : " + play_game.best_score, 320, 180);
+			g.setFont(new Font(Font.SERIF,Font.BOLD,30));
+			g.drawString("Generation : #" + Generic.GENERATION + "(" + Generic.CURGENE + ")", 330, 50);
+			g.drawString("Best Line : #" + Generic.BEST_LINE, 330, 90);
+			g.drawString("Round : " + Generic.ROUND + "R", 330, 130);
+			g.drawString("Current line : #" + Generic.CURRENT_LINE, 330, 200);
 			
-			g.drawString("Current score : " + play_game.current_score, 320, 210);
-			g.drawString("Best line : " + play_game.best_line, 320, 240);
-			g.drawString("lines: " + play_game.removed_line, 320, 270);
-			
-			g.drawString("Generation : " + play_game.generation + " (" + play_game.current_gene + ")", 320, 330);
 		}
 	}
 
