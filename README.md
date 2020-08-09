@@ -3,29 +3,13 @@
  
 # Environment
 IDE : Eclipse IDE for Java Developers - 2019-12
+CPU : Intel Core i5-6200U @ 2.30GHz
+OS : Windows 10 Home 64 bit
+Memory : 4096MB
 
 # 동작 원리
 - 추후 작성 - 
 
-# genetic_tetris
-해당 패키지에는 7개의 클래스가 존재하며 각각의 클래스는 아래와 같은 동작을 수행합니다.
-
-1. Generic.class = 유전 알고리즘의 동작을 수행하는 클래스
-2. Point.class = 좌표를 저장하는 클래스
-3. Weight.class = 9개의 가중치 객체를 생성하는 클래스
-4. calculate_gene.class = 9개의 가중치를 이용하여 값을 구하는 클래스
-5. play_game.class = 테트리스를 동작시키는 클래스 (main 클래스)
-6. tetris_block.class = 테트리스 블록을 생성하는 클래스
-7. tetris_board.class = 테트리스 보드판을 생성하는 클래스
-
-# Weight
-9개의 가중치는 아래와 같습니다.
-1. 테트리스 블럭들 사이에 존재하는 빈 칸에 대한 가중치
-2. 테트리스 블럭을 둔 후, 지워지는 줄에 대한 가중치
-3. 테트리스 블럭을 둔 후, 해당 블록 주위에 있는 블럭들의 개수에 대한 가중치
-4. 테트리스 블럭을 둔 후, 나오는 높이에 대한 가중치
-5. 테트리스 블럭의 밑면에 접하는 블럭에 대한 가중치
-6. 테트리스 블럭의 옆면에 접하는 블럭에 대한 가중치
-7. 테트리스 블럭들 사이에 존재하는 빈 칸을 시작으로하여 해당 빈 칸 위에 존재하는 블럭들에 대한 가중치
-8. 테트리스 블럭을 둔 후, 아래에 존재하는 빈 칸의 개수
-9. 테트리스 블럭을 둔 후, 주위에 존재하는 빈 칸의 개수
+# Reference
+* [tetris-ai-the-near-perfect-player](https://codemyroad.wordpress.com/2013/04/14/tetris-ai-the-near-perfect-player/)
+* [tetrisai](https://github.com/LeeYiyuan/tetrisai)
