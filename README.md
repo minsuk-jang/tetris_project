@@ -1,4 +1,4 @@
-# 유전 알고리즘을 이용한 테트리스
+# 🧱 유전 알고리즘을 이용한 테트리스
 ![Java](https://img.shields.io/badge/Java-007396?style=plastic&logo=Java&logoColor=white)
 ![Git](https://img.shields.io/badge/Git-F05032?style=plastic&logo=Git&logoColor=white)
 
